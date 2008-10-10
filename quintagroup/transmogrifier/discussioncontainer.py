@@ -3,11 +3,13 @@ from xml.dom import minidom
 from zope.interface import classProvides, implements
 
 from Acquisition import aq_base
+from Products.CMFCore import utils
+from Products.CMFDefault import DiscussionItem
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 
-class DiscussionContainerSection(object):
+class CommentsExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
 
@@ -16,9 +18,9 @@ class DiscussionContainerSection(object):
         self.context = transmogrifier.context
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
+        self.fileskey = options.get('files-key', '_files').strip()
 
         self.doc = minidom.Document()
-
 
     def __iter__(self):
         for item in self.previous:
@@ -37,8 +39,8 @@ class DiscussionContainerSection(object):
             if discussion_container is not None:
                 data = self.extractComments(discussion_container)
                 if data:
-                    files = item.setdefault('_files', {})
-                    item['_files']['discussioncontainer'] = {
+                    files = item.setdefault(self.fileskey, {})
+                    item[self.fileskey]['comments'] = {
                         'name': '.comments.xml',
                         'data': data,
                     }
@@ -88,3 +90,88 @@ class DiscussionContainerSection(object):
 
         self.doc.unlink()
         return data
+
+class CommentsImporterSection(object):
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
+        self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
+
+        self.dtool = utils.getToolByName(self.context, 'portal_discussion')
+
+    def __iter__(self):
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            fileskey = self.fileskey(*item.keys())[0]
+
+            if not (pathkey and fileskey):
+                yield item; continue
+            if 'comments' not in item[fileskey]:
+                yield item; continue
+
+            path = item[pathkey]
+            obj = self.context.unrestrictedTraverse(path, None)
+            if obj is None:         # path doesn't exist
+                yield item; continue
+
+            # allow discussion if it wasn't allowed (because we have comments)
+            try:
+                discussion_container = self.dtool.getDiscussionFor(obj)
+            except DiscussionNotAllowed:
+                obj.allow_discussion = True
+                discussion_container = self.dtool.getDiscussionFor(obj)
+
+            data = item[fileskey]['comments']['data']
+            discussion_container._container.clear()
+            for id_, props in self.parseXML(data).items():
+                comment = DiscussionItem.DiscussionItem(id_)
+                discussion_container._container[id_] = comment
+                comment = comment.__of__(discussion_container)
+                self.updateDiscussionItem(comment, props)
+
+            yield item
+
+    def parseXML(self, data):
+        doc = minidom.parseString(data)
+        root = doc.documentElement
+
+        items = {}
+        for child in root.childNodes:
+            if child.nodeName != 'item':
+                continue
+            id_ = str(child.getAttribute('id'))
+            item = items[id_] = {}
+            for field in child.childNodes:
+                if field.nodeName != 'field':
+                    continue
+                name = field.getAttribute('name')
+                # this will be unicode string, encode it?
+                value = ''
+                for node in field.childNodes:
+                    if node.nodeName != '#text':
+                        continue
+                    lines = [line.lstrip() for line in node.nodeValue.splitlines()]
+                    value += '\n'.join(lines)
+                item[name] = value.strip()
+
+        return items
+
+    def updateDiscussionItem(self, item, props):
+        in_reply_to = props['In_reply_to']
+        # if 'In_reply_to' field is string "None" we need to set attribute to None
+        if in_reply_to == 'None':
+            item.in_reply_to = None
+        else:
+            item.in_reply_to = in_reply_to
+
+        item.addCreator(props['Creator'])
+        item.setFormat('text/plain')
+        item.setMetadata(props)
+        item._edit(text=props['Text'])
+        item.setModificationDate(props['Modification_date'])
+        item.indexObject()

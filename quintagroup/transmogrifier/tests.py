@@ -53,6 +53,16 @@ def sectionsSetUp(test):
     zcml.load_config('meta.zcml', Products.GenericSetup)
     zcml.load_config('configure.zcml', quintagroup.transmogrifier)
 
+    from Products.CMFCore import utils
+    def getToolByName(context, tool_id):
+        return context
+    utils.getToolByName = getToolByName
+
+    import Acquisition
+    def aq_base(obj):
+        return obj
+    Acquisition.aq_base = aq_base
+
     provideUtility(DataPrinter,
         name=u'quintagroup.transmogrifier.tests.dataprinter')
 
@@ -274,36 +284,72 @@ def propertyManagerSetUp(test):
     provideUtility(PropertyManagerSource,
         name=u'quintagroup.transmogrifier.tests.propertymanagersource')
 
-def discussionContainerSetUp(test):
+def commentsSetUp(test):
     sectionsSetUp(test)
 
     class MockDiscussionItem(object):
-        def __init__(self, reply, text):
+        creator = 'creator'
+        modified = 'date'
+
+        def __init__(self, reply, text=""):
             self.in_reply_to = reply
             self.text = text
 
-        def Creator(self):
-            return "creator"
-
-        def ModificationDate(self):
-            return "date"
+        def __of__(self, container):
+            return self
 
         def getMetadataHeaders(self):
             return []
 
+        def setMetadata(self, headers):
+            pass
+
+        def Creator(self):
+            return self.creator
+
+        def addCreator(self, creator):
+            self.creator = creator
+
+        def ModificationDate(self):
+            return self.modified
+
+        def setModificationDate(self, date):
+            self.modified = date
+
+        def setFormat(self, format):
+            pass
+
+        def _edit(self, text=None):
+            self.text = text
+
+        def indexObject(self):
+            pass
+
+        def __repr__(self):
+            return "<DicussionItem %s %s %s %s>" % (
+                self.Creator(),
+                self.ModificationDate(),
+                self.in_reply_to,
+                self.text
+                )
+
+    from Products.CMFDefault import DiscussionItem
+    DiscussionItem.DiscussionItem = MockDiscussionItem
+
     class MockPortal(object):
-        discussion = {
+        _discussion = {
             '1': MockDiscussionItem(None, 'comment to content'),
             '2': MockDiscussionItem('1', 'reply to first comment'),
             '3': MockDiscussionItem(None, 'other comment to content')
         }
+        _container = {}
 
         @property
         def talkback(self):
             return self
 
         def objectItems(self):
-            l = self.discussion.items()
+            l = self._discussion.items()
             l.sort(key=lambda x: int(x[0]))
             return l
 
@@ -318,30 +364,28 @@ def discussionContainerSetUp(test):
                 return object()
             return self
 
+        def getDiscussionFor(self, obj):
+            return self
+
     portal = MockPortal()
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 
-    import Acquisition
-    def aq_base(obj):
-        return obj
-    Acquisition.aq_base = aq_base
-
-    class DiscussionContainerSource(SampleSource):
+    class CommentsSource(SampleSource):
         classProvides(ISectionBlueprint)
         implements(ISection)
 
         def __init__(self, *args, **kw):
-            super(DiscussionContainerSource, self).__init__(*args, **kw)
+            super(CommentsSource, self).__init__(*args, **kw)
             self.sample = (
-                dict(_path='spam/eggs/foo'),
-                dict(_path='not/existing/bar'),
                 dict(),
+                dict(_path='not/existing/bar'),
                 dict(_path='spam/eggs/notdiscussable'),
+                dict(_path='spam/eggs/foo'),
             )
 
-    provideUtility(DiscussionContainerSource,
-        name=u'quintagroup.transmogrifier.tests.discussioncontainersource')
+    provideUtility(CommentsSource,
+        name=u'quintagroup.transmogrifier.tests.commentssource')
 
 
 def dataCorrectorSetUp(test):
@@ -440,11 +484,6 @@ def writerSetUp(test):
     context.TarballExportContext = type('Tarball', (MockExportContext,), {})
     context.SnapshotExportContext = type('Snapshot', (MockExportContext,), {})
 
-    from Products.CMFCore import utils
-    def getToolByName(context, tool_id):
-        return context
-    utils.getToolByName = getToolByName
-
     class WriterSource(SampleSource):
         classProvides(ISectionBlueprint)
         implements(ISection)
@@ -536,11 +575,6 @@ def readerSetUp(test):
     context.TarballImportContext = type('Tarball', (MockImportContext,), {})
     context.SnapshotImportContext = type('Snapshot', (MockImportContext,),
         {'listDirectory': lambda self, path: []})
-
-    from Products.CMFCore import utils
-    def getToolByName(context, tool_id):
-        return context
-    utils.getToolByName = getToolByName
 
 def manifestImportSetUp(test):
     sectionsSetUp(test)
@@ -723,7 +757,7 @@ def test_suite():
             setUp=propertyManagerSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
             'discussioncontainer.txt',
-            setUp=discussionContainerSetUp, tearDown=tearDown),
+            setUp=commentsSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
             'datacorrector.txt',
             setUp=dataCorrectorSetUp, tearDown=tearDown),

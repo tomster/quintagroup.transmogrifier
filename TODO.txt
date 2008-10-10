@@ -1,10 +1,10 @@
 TODO
 ====
 
-- Reference fields aren't imported now, fix it.
+- Reference fields can't be imported now, fix it.
 
 - Make cleaning in manifest export/import sections.
 
-- Create tests for ``datacorrector`` adapters, and GS Content steps.
+- Create tests for ``datacorrector`` adapters and GS Content steps.
 
-- Import doesn't work now for some reason.
+- Rewrite FileExporter/FileImporter adapters as pipeline sections.

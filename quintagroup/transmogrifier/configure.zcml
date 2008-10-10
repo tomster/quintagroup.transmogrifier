@@ -44,12 +44,12 @@
         />
 
     <utility
-        component=".discussioncontainer.CommentsExporterSection"
+        component=".comments.CommentsExporterSection"
         name="quintagroup.transmogrifier.commentsexporter"
         />
 
     <utility
-        component=".discussioncontainer.CommentsImporterSection"
+        component=".comments.CommentsImporterSection"
         name="quintagroup.transmogrifier.commentsimporter"
         />
 
@@ -84,6 +84,11 @@
     <utility
         component=".xslt.XSLTSection"
         name="quintagroup.transmogrifier.xslt"
+        />
+
+    <utility
+        component=".logger.LoggerSection"
+        name="quintagroup.transmogrifier.logger"
         />
 
     <transmogrifier:registerConfig

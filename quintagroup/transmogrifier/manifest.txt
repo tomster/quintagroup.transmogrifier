@@ -1,6 +1,10 @@
 Manifest section
 ================
 
+A manifest section is used to create listing in XML format of all objects
+contained in some folder. Manifest section blueprint name is 
+``quintagroup.transmogrifier.manifest``.
+
 >>> manifest = """
 ... [transmogrifier]
 ... pipeline =

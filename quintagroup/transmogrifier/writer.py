@@ -53,7 +53,7 @@ class WriterSection(object):
             path = item[pathkey]
 
             item_path = os.path.join(self.prefix, path)
-            item_path.rstrip('/')
+            item_path = item_path.rstrip('/')
 
             for k, v in item[fileskey].items():
                 self.export_context.writeDataFile(v['name'], v['data'], 'text/xml', subdir=item_path)

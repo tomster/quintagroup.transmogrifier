@@ -18,6 +18,11 @@ be used for tarball context, where content lives in 'structure' subdirectory,
 but may be used for other two too). Also note that ``prefix`` isn't added
 to generated item's path.
 
+Reader reads files and adds to ``item[files-key]`` dictionary with file's data
+and name. This dictionary is stored on a key, that identifies to which section
+this file corresponds. Mapping between filenames and sections is defined in
+reader section options. Option name is filename and option value is section name.
+
 >>> reader = """
 ... [transmogrifier]
 ... pipeline =
@@ -27,6 +32,10 @@ to generated item's path.
 ... [reader]
 ... blueprint = quintagroup.transmogrifier.reader
 ... prefix = structure
+... .objects.xml = manifest
+... .marshall.xml = marshall
+... .properties.xml = propertymanager
+... .comments.xml = comments
 ... 
 ... [printer]
 ... blueprint = collective.transmogrifier.sections.tests.pprinter
@@ -46,8 +55,7 @@ to generated item's path.
 {'_files': {'manifest': {'data': 'some data', 'name': '.objects.xml'}},
  '_import_context': <Tarball ...>,
  '_path': 'pages'}
-{'_files': {'discussioncontainer': {'data': 'some data',
-                                    'name': '.comments.xml'},
+{'_files': {'comments': {'data': 'some data', 'name': '.comments.xml'},
             'marshall': {'data': 'some data', 'name': '.marshall.xml'}},
  '_import_context': <Tarball ...>,
  '_path': 'pages/front-page'}

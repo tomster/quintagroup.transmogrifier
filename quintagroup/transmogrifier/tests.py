@@ -756,7 +756,7 @@ def test_suite():
             'propertymanager.txt',
             setUp=propertyManagerSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
-            'discussioncontainer.txt',
+            'comments.txt',
             setUp=commentsSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
             'datacorrector.txt',

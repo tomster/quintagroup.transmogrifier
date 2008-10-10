@@ -70,7 +70,7 @@ def listDirectory(self, path, skip=SKIPPED_FILES,
         if [s for s in skip_suffixes if name.endswith(s)]:
             continue
         # directories have trailing '/' character and we need to remove it
-        name.rstrip('/')
+        name = name.rstrip('/')
         names.append(name)
 
     return names

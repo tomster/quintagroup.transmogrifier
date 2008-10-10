@@ -94,6 +94,7 @@ class PropertiesImporterSection(object):
                             options.get('exclude', '').splitlines()])
 
         self.helper = Helper()
+        self.helper._encoding = 'utf-8'
 
     def __iter__(self):
         helper = self.helper

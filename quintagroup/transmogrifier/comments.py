@@ -5,6 +5,7 @@ from zope.interface import classProvides, implements
 from Acquisition import aq_base
 from Products.CMFCore import utils
 from Products.CMFDefault import DiscussionItem
+from Products.CMFDefault.exceptions import DiscussionNotAllowed
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
@@ -111,6 +112,7 @@ class CommentsImporterSection(object):
 
             if not (pathkey and fileskey):
                 yield item; continue
+
             if 'comments' not in item[fileskey]:
                 yield item; continue
 

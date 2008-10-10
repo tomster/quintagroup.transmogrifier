@@ -39,9 +39,12 @@
         />
 
     <utility
-        component=".exportadapters.ExportAdaptersSection"
-        name="quintagroup.transmogrifier.exportadapters"
+        component=".datacorrector.DataCorrectorSection"
+        name="quintagroup.transmogrifier.datacorrector"
         />
+
+    <!-- registration of adapters for data corrector section -->
+    <include package=".adapters" />
 
     <utility
         component=".writer.WriterSection"
@@ -67,9 +70,6 @@
         component=".xslt.XSLTSection"
         name="quintagroup.transmogrifier.xslt"
         />
-
-    <!-- include registration of adapters for "exportadapters" blueprint -->
-    <include package=".adapters" />
 
     <transmogrifier:registerConfig
         name="export"

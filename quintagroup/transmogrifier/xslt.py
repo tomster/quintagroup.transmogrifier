@@ -125,11 +125,11 @@ class XSLTSection(object):
             if stylesheet_info is None:
                 yield item; continue
 
-            fp = file(stylesheet_info['file'])
+            fp = open(stylesheet_info['file'], 'r')
             stylesheet = fp.read()
             fp.close()
 
-            source_dict = item[filekey][source]
+            source_dict = item[fileskey][source]
             source_dict['data'] = self.applyTransformations(source_dict['data'], stylesheet)
 
             yield item

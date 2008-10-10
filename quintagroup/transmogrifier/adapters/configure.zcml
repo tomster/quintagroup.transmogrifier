@@ -4,24 +4,40 @@
 
     <!-- 'marshall' adapters -->
     <adapter
-        factory=".marshall.ReferenceExporter"
+        factory=".exporting.ReferenceExporter"
+        name="marshall"
+        />
+
+    <adapter
+        factory=".importing.ReferenceImporter"
         name="marshall"
         />
 
     <adapter
         for="Products.ATContentTypes.interface.IATFile"
-        factory=".marshall.FileExporter"
+        factory=".exporting.FileExporter"
+        name="marshall"
+        />
+    <adapter
+        for="Products.ATContentTypes.interface.IATFile"
+        factory=".importing.FileImporter"
         name="marshall"
         />
 
     <adapter
         for="Products.ATContentTypes.interface.IATImage"
-        factory=".marshall.FileExporter"
+        factory=".exporting.FileExporter"
         name="marshall"
         />
 
     <adapter
-        factory=".marshall.CriterionExporter"
+        for="Products.ATContentTypes.interface.IATImage"
+        factory=".importing.FileImporter"
+        name="marshall"
+        />
+
+    <adapter
+        factory=".exporting.CriterionExporter"
         name="marshall"
         />
 

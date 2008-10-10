@@ -315,7 +315,7 @@ def discussionContainerSetUp(test):
         name=u'quintagroup.transmogrifier.tests.discussioncontainersource')
 
 
-def exportAdaptersSetUp(test):
+def dataCorrectorSetUp(test):
     sectionsSetUp(test)
 
     class MockPortal(object):
@@ -334,36 +334,51 @@ def exportAdaptersSetUp(test):
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 
-    from quintagroup.transmogrifier.exportadapters import IExportDataCorrector
+    from quintagroup.transmogrifier.interfaces import IExportDataCorrector, \
+        IImportDataCorrector
 
-    class MockAdapter(object):
+    class MockExportAdapter(object):
         implements(IExportDataCorrector)
         adapts(MockPortal)
         def __init__(self, context):
             self.context = context
 
         def __call__(self, data):
-            return "modified data"
+            return "modified export data"
 
-    provideAdapter(MockAdapter, name="mock")
+    provideAdapter(MockExportAdapter, name="marshall")
 
-    class ExportAdaptersSource(SampleSource):
+    class MockImportAdapter(object):
+        implements(IImportDataCorrector)
+        adapts(MockPortal)
+        def __init__(self, context):
+            self.context = context
+
+        def __call__(self, data):
+            return "modified import data"
+
+    provideAdapter(MockImportAdapter, name="manifest")
+
+    class DataCorrectorSource(SampleSource):
         classProvides(ISectionBlueprint)
         implements(ISection)
 
         def __init__(self, *args, **kw):
-            super(ExportAdaptersSource, self).__init__(*args, **kw)
+            super(DataCorrectorSource, self).__init__(*args, **kw)
             self.sample = (
-                dict(_path='spam/eggs/foo',
-                     _files=dict(mock='some data', unchanged='this must be unchanged')),
-                dict(_path='not/existing/bar'),
                 dict(),
-                dict(_files=dict(mock="item hasn't path")),
-                dict(_path='spam/eggs/notadaptable', _files=dict(mock="object isn't adaptable")),
+                dict(_files=dict(marshall="item hasn't path")),
+                dict(_path='spam/eggs/foo'),
+                dict(_path='not/existing/bar'),
+                dict(_path='spam/eggs/notadaptable', _files=dict(marshall="object isn't adaptable")),
+                dict(_path='spam/eggs/foo',
+                     _files=dict(marshall='marshall data', unchanged='this must be unchanged')),
+                dict(_path='spam/eggs/foo',
+                     _files=dict(manifest='manifest data', unchanged='this must be unchanged')),
             )
 
-    provideUtility(ExportAdaptersSource,
-        name=u'quintagroup.transmogrifier.tests.exportadapterssource')
+    provideUtility(DataCorrectorSource,
+        name=u'quintagroup.transmogrifier.tests.datacorrectorsource')
 
 def writerSetUp(test):
     sectionsSetUp(test)
@@ -647,7 +662,7 @@ def xsltSetUp(test):
                 {'_old_type': 'Blog'},
                 {'_old_type': 'Blog',
                  '_type': 'Weblog',
-                 '_files': {'manifest': {'data': 'xml', 'name': 'marshall.xml'}}},
+                 '_files': {'manifest': {'data': 'xml', 'name': 'manifest.xml'}}},
                 {'_old_type': 'Blog',
                  '_type': 'Weblog',
                  '_files': {'marshall': {'data': 'xml', 'name': 'marshall.xml'}}},
@@ -656,16 +671,10 @@ def xsltSetUp(test):
     provideUtility(XSLTSource,
         name=u'quintagroup.transmogrifier.tests.xsltsource')
 
-    import tempfile
     from quintagroup.transmogrifier.xslt import XSLTSection, stylesheet_registry
 
-    XSLTSection.applyTransformations = lambda xml, xslt: 'transformed xml'
-
-    tmp = tempfile.NamedTemporaryFile('w+', suffix='.xsl')
-    tmp.write("stylesheet")
-    tmp.flush()
-
-    stylesheet_registry.registerStylesheet('marshall', 'Blog', 'Weblog', tmp.name)
+    XSLTSection.applyTransformations = lambda self, xml, xslt: 'transformed xml'
+    test.globs['stylesheet_registry'] = stylesheet_registry
 
 def test_suite():
     import sys
@@ -687,8 +696,8 @@ def test_suite():
             'discussioncontainer.txt',
             setUp=discussionContainerSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
-            'exportadapters.txt',
-            setUp=exportAdaptersSetUp, tearDown=tearDown),
+            'datacorrector.txt',
+            setUp=dataCorrectorSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
             'writer.txt',
             setUp=writerSetUp, tearDown=tearDown),

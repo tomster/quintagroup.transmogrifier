@@ -6,11 +6,13 @@ item. The XSLT section blueprint name is ``quintagroup.transmogrifier.xslt``.
 
 That data need to be transformed is determined by ``source`` option. It gives
 the key in dictionay where data is stored. Dictionary is standard structure
-for storing files data in other our sections. It's stored on item on ``_files``
+for storing files data in other our sections. Data is stored in item on ``_files``
 key, but this can be changed with ``files-key`` option.
 
 Usually stylesheets are used to transform data returned by ``marshall`` section.
 We register those stylesheets in ZCML with special directive, for example:
+
+::
 
     <stylesheet xmlns="http://namespaces.zope.org/transmogrifier"
         from="OldPortalType"
@@ -19,12 +21,18 @@ We register those stylesheets in ZCML with special directive, for example:
         file="path/to/stylesheet.xsl"
         />
 
-``source`` atribute in this directive is similar to that in section option.
+``source`` attribute in this directive is similar to that in section option.
+The default value for this option is ``marshall``.
 
 Which stylesheet to use is determined for every pipeline item by inspecting
 it's values stored on keys specified in ``from-key`` and ``to-key`` section
-options. If item don't has those keys, it will be skepped.
+options. These options are similar to ``from`` and ``to`` attributes in 
+ZCML directive. If item hasn't those keys, it will be skipped.
 
+>>> import tempfile
+>>> tmp = tempfile.NamedTemporaryFile('w+', suffix='.xsl')
+>>> tmp.flush()
+>>> stylesheet_registry.registerStylesheet('marshall', 'Blog', 'Weblog', tmp.name)
 >>> xslt = """
 ... [transmogrifier]
 ... pipeline =
@@ -45,7 +53,7 @@ options. If item don't has those keys, it will be skepped.
 ... blueprint = collective.transmogrifier.sections.tests.pprinter
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.xslt', xslt)
->>> transmogrifier(u'quintagroup.transmogrifier.tests.xslt') # doctest: +ELLIPSIS
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.xslt') # doctest: +ELLIPSIS, +REPORT_NDIFF
 {}
 {'_type': 'Weblog'}
 {'_old_type': 'Blog'}

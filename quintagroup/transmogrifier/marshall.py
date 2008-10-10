@@ -16,7 +16,7 @@ class MarshallerSection(object):
         self.context = transmogrifier.context
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
-        self.fileskey = options.get('files-key', '_files')
+        self.fileskey = options.get('files-key', '_files').strip()
 
         self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
         self.exclude = filter(None, [i.strip() for i in 

@@ -218,6 +218,13 @@ def propertyManagerSetUp(test):
     class MockPortal(object):
         implements(IPropertyManager)
 
+        _properties = (
+            {'id':'title', 'type': 'string', 'mode': 'w'},
+            {'id':'description', 'type': 'string', 'mode': 'w'},
+            {'id':'encoding', 'type': 'string', 'mode': 'w'},
+            {'id':'author', 'type': 'string', 'mode': 'w'}
+        )
+
         _last_path = None
         def unrestrictedTraverse(self, path, default):
             if path[0] == '/':
@@ -231,16 +238,21 @@ def propertyManagerSetUp(test):
             self._last_path = path
             return self
 
-        updated = ()
         def _propertyMap(self):
-            self.updated += (self._last_path,)
-            return ({'id':'propone', 'type': 'string', 'mode': 'w'},
-                    {'id':'proptwo', 'type': 'string', 'mode': 'w'},
-                    {'id':'propthree', 'type': 'string', 'mode': 'w'},
-                    {'id':'propfour', 'type': 'string', 'mode': 'w'})
+            return self._properties
 
-        def getProperty(id, d=None):
+        def getProperty(self, id, d=None):
             return 'value'
+
+        def propdict(self):
+            d={}
+            for p in self._properties:
+                d[p['id']]=p
+            return d
+
+        updated = ()
+        def _updateProperty(self, id, value):
+            self.updated += ((self._last_path, id, value.strip()))
 
     portal = MockPortal()
     test.globs['plone'] = portal
@@ -253,10 +265,10 @@ def propertyManagerSetUp(test):
         def __init__(self, *args, **kw):
             super(PropertyManagerSource, self).__init__(*args, **kw)
             self.sample = (
-                dict(_path='spam/eggs/foo', _excluded_properties=('proptwo','propthree')),
-                dict(_path='not/existing/bar'),
                 dict(),
+                dict(_path='not/existing/bar'),
                 dict(_path='spam/eggs/notatcontent'),
+                dict(_path='spam/eggs/foo', _excluded_properties=('encoding',)),
             )
 
     provideUtility(PropertyManagerSource,

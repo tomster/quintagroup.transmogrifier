@@ -34,8 +34,13 @@
         />
 
     <utility
-        component=".propertymanager.PropertyManagerSection"
-        name="quintagroup.transmogrifier.propertymanager"
+        component=".propertymanager.PropertiesExporterSection"
+        name="quintagroup.transmogrifier.propertiesexporter"
+        />
+
+    <utility
+        component=".propertymanager.PropertiesImporterSection"
+        name="quintagroup.transmogrifier.propertiesimporter"
         />
 
     <utility

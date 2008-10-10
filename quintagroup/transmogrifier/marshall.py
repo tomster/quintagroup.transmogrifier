@@ -7,7 +7,7 @@ from collective.transmogrifier.utils import defaultMatcher
 from Products.Marshall import registry
 from Products.Archetypes.interfaces import IBaseObject
 
-class MarshallSection(object):
+class MarshallerSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
 
@@ -16,9 +16,13 @@ class MarshallSection(object):
         self.context = transmogrifier.context
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
-        self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
+        self.fileskey = options.get('files-key', '_files')
 
-        self.marshaller = registry.getComponent("atxml")
+        self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
+        self.exclude = filter(None, [i.strip() for i in 
+                              options.get('exclude', '').splitlines()])
+
+        self.atxml = registry.getComponent("atxml")
 
     def __iter__(self):
         for item in self.previous:
@@ -33,24 +37,75 @@ class MarshallSection(object):
                 yield item; continue
 
             if IBaseObject.providedBy(obj):
+                # get list of excluded fields given in options and in item
                 excludekey = self.excludekey(*item.keys())[0]
-                atns_exclude = ()
+                atns_exclude = tuple(self.exclude)
                 if excludekey:
-                    atns_exclude = item[excludekey]
-                    
+                    atns_exclude = tuple(set(item[excludekey]) | set(atns_exclude))
+
                 try:
-                    content_type, length, data = self.marshaller.marshall(obj, atns_exclude=atns_exclude)
+                    content_type, length, data = self.atxml.marshall(obj, atns_exclude=atns_exclude)
                 except ConflictError:
                     raise
                 except:
                     data = None
-                    
+
                 if data or data is None:
                     # None value has special meaning for IExportDataCorrector adapter for topic criterias
-                    files = item.setdefault('_files', {})
-                    item['_files']['marshall'] = {
+                    files = item.setdefault(self.fileskey, {})
+                    item[self.fileskey]['marshall'] = {
                         'name': '.marshall.xml',
                         'data': data,
                     }
+
+            yield item
+
+class DemarshallerSection(object):
+    classProvides(ISectionBlueprint)
+    implements(ISection)
+
+    def __init__(self, transmogrifier, name, options, previous):
+        self.previous = previous
+        self.context = transmogrifier.context
+
+        self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
+        self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
+
+        # Marshall doesn't support excluding fields on demarshalling,
+        # we can do this with xml.dom.minodom, if it'll be needed in the future
+        # self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
+
+        # self.exclude = filter(None, [i.strip() for i in 
+        #                     options.get('exclude', '').splitlines()])
+
+        self.atxml = registry.getComponent("atxml")
+
+    def __iter__(self):
+        for item in self.previous:
+            pathkey = self.pathkey(*item.keys())[0]
+            fileskey = self.fileskey(*item.keys())[0]
+
+            if not (pathkey and fileskey):
+                yield item; continue
+            if 'marshall' not in item[fileskey]:
+                yield item; continue
+
+            path = item[pathkey]
+            obj = self.context.unrestrictedTraverse(path, None)
+            if obj is None:         # path doesn't exist
+                yield item; continue
+
+            if IBaseObject.providedBy(obj):
+                try:
+                    data = item[fileskey]['marshall']['data']
+                    self.atxml.demarshall(obj, data)
+                    # we don't want to call reindexObject because modification_date
+                    # will be updated, so we call only indexObject (reindexObject does
+                    # some things with uid catalog too)
+                    obj.indexObject()
+                except ConflictError:
+                    raise
+                except:
+                    pass
 
             yield item

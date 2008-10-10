@@ -136,9 +136,15 @@ def marshallSetUp(test):
 
     class MockCriterion(object):
         implements(IBaseObject)
+        _last_path = None
+        indexed = ()
+        def indexObject(self):
+            self.indexed += (self._last_path,)
 
     class MockPortal(object):
         implements(IBaseObject)
+
+        criterion = MockCriterion()
 
         _last_path = None
         def unrestrictedTraverse(self, path, default):
@@ -150,7 +156,8 @@ def marshallSetUp(test):
                 return default
             if path == 'topic/criterion':
                 self._last_path = path
-                return MockCriterion()
+                self.criterion._last_path = path
+                return self.criterion
             if path.endswith('/notatcontent'):
                 return object()
             self._last_path = path
@@ -159,14 +166,23 @@ def marshallSetUp(test):
         def getId(self):
             return "plone"
 
-        exported = ()
+        indexed = ()
+        def indexObject(self):
+            self.indexed += (self._last_path,)
+
+        marshalled = ()
         def marshall(self, instance, **kwargs):
-            self.exported += ((self._last_path, kwargs.get('atns_exclude')),)
+            self.marshalled += ((self._last_path, kwargs.get('atns_exclude')),)
             # Marshall often fails to export topic criteria
             if isinstance(instance, MockCriterion):
                 return None, None, None
             else:
                 return None, None, "marshalled"
+
+        demarshalled = ()
+        def demarshall(self, instance, data):
+            # we don't need to test Marshall product, only check if we call it's components
+            self.demarshalled += (self._last_path,)
 
     portal = MockPortal()
     test.globs['plone'] = portal
@@ -184,11 +200,12 @@ def marshallSetUp(test):
         def __init__(self, *args, **kw):
             super(MarshallSource, self).__init__(*args, **kw)
             self.sample = (
-                dict(_path='spam/eggs/foo', _excluded_fields=('fieldone','fieldtwo')),
+                dict(),
+                dict(_path='spam/eggs/foo', _excluded_fields=('file', 'image')),
                 dict(_path='topic/criterion'),
                 dict(_path='not/existing/bar'),
-                dict(),
-                dict(_path='spam/eggs/notatcontent'),
+                dict(_path='spam/eggs/notatcontent', 
+                     _files=dict(marshall=dict(data='xml', name='.marshall.xml'))),
             )
     provideUtility(MarshallSource,
         name=u'quintagroup.transmogrifier.tests.marshallsource')

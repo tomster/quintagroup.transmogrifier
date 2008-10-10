@@ -24,8 +24,13 @@
         />
 
     <utility
-        component=".marshall.MarshallSection"
-        name="quintagroup.transmogrifier.marshall"
+        component=".marshall.MarshallerSection"
+        name="quintagroup.transmogrifier.marshaller"
+        />
+
+    <utility
+        component=".marshall.DemarshallerSection"
+        name="quintagroup.transmogrifier.demarshaller"
         />
 
     <utility

@@ -1,0 +1,53 @@
+Marshall section
+================
+
+The marshall section blueprint name is
+``quintagroup.transmogrifier.marshall``.
+
+Marshall needs at least 1 piece of information: the path to the object
+to update. To determine the path, the marshall section inspects each
+item and looks for one key, as described below. Any item missing this piece of
+information will be skipped. Similarly, items with a path that doesn't exist
+or are not Archetypes objects will be skipped as well.
+
+For the object path, it'll look (in order) for
+``_plone.app.transmogrifier.atschemaupdater_[sectionname]_path``,
+``_plone.app.transmogrifier.atschemaupdater_path``, ``_[sectionname]_path``
+and ``_path``, where ``[sectionname]`` is replaced with the name given to the
+current section. This allows you to target the right section precisely if
+needed. Alternatively, you can specify what key to use for the path by
+specifying the ``path-key`` option, which should be a list of keys to try (one
+key per line, use a ``re:`` or ``regexp:`` prefix to specify regular
+expressions).
+
+Paths to objects are always interpreted as relative to the context.
+
+>>> import pprint
+>>> marshall = """
+... [transmogrifier]
+... pipeline =
+...     marshallsource
+...     marshall
+...     printer
+...     
+... [marshallsource]
+... blueprint = quintagroup.transmogrifier.tests.marshallsource
+... 
+... [marshall]
+... blueprint = quintagroup.transmogrifier.marshall
+... 
+... [printer]
+... blueprint = collective.transmogrifier.sections.tests.pprinter
+... """
+>>> registerConfig(u'quintagroup.transmogrifier.tests.marshall', marshall)
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.marshall')  # doctest: +REPORT_NDIFF
+{'_excluded_fields': ('fieldone', 'fieldtwo'),
+ '_files': {'marshall': {'data': 'marshalled', 'name': '.marshall.xml'}},
+ '_path': 'spam/eggs/foo'}
+{'_files': {'marshall': {'data': None, 'name': '.marshall.xml'}},
+ '_path': 'topic/criterion'}
+{'_path': 'not/existing/bar'}
+{}
+{'_path': 'spam/eggs/notatcontent'}
+>>> pprint.pprint(plone.exported)
+(('spam/eggs/foo', ('fieldone', 'fieldtwo')), ('topic/criterion', ()))

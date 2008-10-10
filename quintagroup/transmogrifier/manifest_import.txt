@@ -1,0 +1,31 @@
+Manifest import section
+=======================
+
+>>> manifest = """
+... [transmogrifier]
+... pipeline =
+...     manifestsource
+...     manifest
+...     printer
+... 
+... [manifestsource]
+... blueprint = quintagroup.transmogrifier.tests.manifestsource
+... 
+... [manifest]
+... blueprint = quintagroup.transmogrifier.manifestimport
+... 
+... [printer]
+... blueprint = collective.transmogrifier.sections.tests.pprinter
+... """
+>>> registerConfig(u'quintagroup.transmogrifier.tests.manifest',
+...                manifest)
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.manifest') # doctest: +ELLIPSIS, +REPORT_NDIFF
+{'_files': {'manifest': {'data': ...
+                         'name': '.objects.xml'}},
+ '_path': ''}
+{'_type': 'Document', '_path': 'document1'}
+{'_files': {'manifest': {'data': ...
+                         'name': '.objects.xml'}},
+ '_path': 'folder1',
+ '_type': 'Folder'}
+{'_type': 'Document', '_path': 'folder1/document2'}

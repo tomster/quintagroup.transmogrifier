@@ -1,0 +1,36 @@
+Manifest section
+================
+
+>>> manifest = """
+... [transmogrifier]
+... pipeline =
+...     manifestsource
+...     manifest
+...     printer
+... 
+... [manifestsource]
+... blueprint = quintagroup.transmogrifier.tests.manifestsource
+... 
+... [manifest]
+... blueprint = quintagroup.transmogrifier.manifest
+... 
+... [printer]
+... blueprint = collective.transmogrifier.sections.tests.pprinter
+... """
+>>> registerConfig(u'quintagroup.transmogrifier.tests.manifest',
+...                manifest)
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.manifest') # doctest: +ELLIPSIS
+{'_entries': (('document1', 'Document'),
+              ('folder1', 'Folder'),
+              ('document3', 'Document')),
+ '_files': {'manifest': {'data': ...
+                         'name': '.objects.xml'}}}
+{}
+>>> print data
+<?xml version="1.0" ?>
+<manifest>
+  <record type="Document">document1</record>
+  <record type="Folder">folder1</record>
+  <record type="Document">document3</record>
+</manifest>
+<BLANKLINE>

@@ -1,0 +1,92 @@
+Discussion container section
+============================
+
+The discussion container section blueprint name is
+``quintagroup.transmogrifier.discussioncontainer``.
+
+Discussion container needs at least 1 piece of information: the path to the
+object to update. To determine the path, the marshall section inspects each
+item and looks for one key, as described below. Any item missing this piece of
+information will be skipped. Similarly, items with a path that doesn't exist
+or haven't ``talkback`` attribute will be skipped as well.
+
+Paths to objects are always interpreted as relative to the context.
+
+>>> discussioncontainer = """
+... [transmogrifier]
+... pipeline =
+...     discussioncontainersource
+...     discussioncontainer
+...     printer
+...     dataprinter
+...     
+... [discussioncontainersource]
+... blueprint = quintagroup.transmogrifier.tests.discussioncontainersource
+... 
+... [discussioncontainer]
+... blueprint = quintagroup.transmogrifier.discussioncontainer
+... 
+... [printer]
+... blueprint = collective.transmogrifier.sections.tests.pprinter
+... 
+... [dataprinter]
+... blueprint = quintagroup.transmogrifier.tests.dataprinter
+... print = 
+...     _files
+...     discussioncontainer
+...     data
+... """
+>>> registerConfig(u'quintagroup.transmogrifier.tests.discussioncontainer', discussioncontainer)
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.discussioncontainer') # doctest: +ELLIPSIS, +REPORT_NDIFF
+{'_files': {'discussioncontainer': {'data': ...
+                                    'name': '.comments.xml'}},
+ '_path': 'spam/eggs/foo'}
+<?xml version="1.0" ?>
+<discussion>
+  <item id="1">
+    <field name="Creator">
+      creator
+    </field>
+    <field name="Modification_date">
+      date
+    </field>
+    <field name="In_reply_to">
+      None
+    </field>
+    <field name="Text">
+      comment to content
+    </field>
+  </item>
+  <item id="2">
+    <field name="Creator">
+      creator
+    </field>
+    <field name="Modification_date">
+      date
+    </field>
+    <field name="In_reply_to">
+      1
+    </field>
+    <field name="Text">
+      reply to first comment
+    </field>
+  </item>
+  <item id="3">
+    <field name="Creator">
+      creator
+    </field>
+    <field name="Modification_date">
+      date
+    </field>
+    <field name="In_reply_to">
+      None
+    </field>
+    <field name="Text">
+      other comment to content
+    </field>
+  </item>
+</discussion>
+<BLANKLINE>
+{'_path': 'not/existing/bar'}
+{}
+{'_path': 'spam/eggs/notdiscussable'}

@@ -1,0 +1,61 @@
+Property manager section
+========================
+
+The marshall section blueprint name is
+``quintagroup.transmogrifier.propertymanager``.
+
+Property manager needs at least 1 piece of information: the path to the object
+to update. To determine the path, the marshall section inspects each
+item and looks for one key, as described below. Any item missing this piece of
+information will be skipped. Similarly, items with a path that doesn't exist
+or are not objects that provide OFS.interfaces.IPropertyManager will be skipped as well.
+
+Paths to objects are always interpreted as relative to the context.
+
+>>> import pprint
+>>> propertymanager = """
+... [transmogrifier]
+... pipeline =
+...     propertymanagersource
+...     propertymanager
+...     printer
+...     dataprinter
+...     
+... [propertymanagersource]
+... blueprint = quintagroup.transmogrifier.tests.propertymanagersource
+... 
+... [propertymanager]
+... blueprint = quintagroup.transmogrifier.propertymanager
+... exclude = 
+...     propone
+...     proptwo
+...     notexistentprop
+... 
+... [printer]
+... blueprint = collective.transmogrifier.sections.tests.pprinter
+... 
+... [dataprinter]
+... blueprint = quintagroup.transmogrifier.tests.dataprinter
+... print = 
+...     _files
+...     propertymanager
+...     data
+... """
+>>> registerConfig(u'quintagroup.transmogrifier.tests.propertymanager', propertymanager)
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.propertymanager') # doctest: +ELLIPSIS, +REPORT_NDIFF
+{'_excluded_properties': ('proptwo', 'propthree'),
+ '_files': {'propertymanager': {'data': ...
+                                'name': '.properties.xml'}},
+ '_path': 'spam/eggs/foo'}
+<?xml version="1.0" encoding="utf-8"?>
+<properties>
+  <property name="propfour">
+    value
+  </property>
+</properties>
+<BLANKLINE>
+{'_path': 'not/existing/bar'}
+{}
+{'_path': 'spam/eggs/notatcontent'}
+>>> pprint.pprint(plone.updated)
+('spam/eggs/foo',)

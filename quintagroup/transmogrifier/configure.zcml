@@ -19,8 +19,13 @@
         />
 
     <utility
-        component=".manifest.ManifestSection"
-        name="quintagroup.transmogrifier.manifest"
+        component=".manifest.ManifestExporterSection"
+        name="quintagroup.transmogrifier.manifestexporter"
+        />
+
+    <utility
+        component=".manifest.ManifestImporterSection"
+        name="quintagroup.transmogrifier.manifestimporter"
         />
 
     <utility
@@ -69,11 +74,6 @@
     <utility
         component=".reader.ReaderSection"
         name="quintagroup.transmogrifier.reader"
-        />
-
-    <utility
-        component=".manifest.ManifestImportSection"
-        name="quintagroup.transmogrifier.manifestimport"
         />
 
     <utility

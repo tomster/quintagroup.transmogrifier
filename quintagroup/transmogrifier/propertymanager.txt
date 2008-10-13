@@ -12,7 +12,7 @@ GenericSetup.utils.PropertyManagerHelpers class. Both sections need relative
 path to the object with properties and importer also needs XML data for updating
 properties.
 
-Both sections has ``path-key`` option which specify key in item where path to
+Both sections has ``path-key`` option which specifies key in item where path to
 object is stored (``_path`` is default) and ``files-key`` option that gives
 key where XML data will be or is stored. Exporter section also has ``exclude``
 option that give global list of property ids to exclude on serializing and

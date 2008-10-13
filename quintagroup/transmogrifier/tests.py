@@ -116,11 +116,38 @@ def siteWalkerSetUp(test):
 def manifestSetUp(test):
     sectionsSetUp(test)
 
-    item = {'_entries' : (
-        ('document1', 'Document'),
-        ('folder1', 'Folder'),
-        ('document3', 'Document'),)
-    }
+    root = dict(
+        _path='',
+        _entries=(
+            ('news', 'Folder'),
+            ('events', 'Folder'),
+            ('front-page', 'Document')
+        )
+    )
+
+    news = dict(
+        _path='news',
+        _entries=(
+            ('aggregator', 'Topic'),
+            ('not-existing', 'SomeType')
+        )
+    )
+
+    aggregator = dict(
+        _path='news/aggregator',
+    )
+
+    events = dict(
+        _path='events'
+    )
+
+    front_page = dict(
+        _path='front-page',
+    )
+
+    members = dict(
+        _path='Memebers'
+    )
 
     class ManifestSource(SampleSource):
         classProvides(ISectionBlueprint)
@@ -128,16 +155,10 @@ def manifestSetUp(test):
 
         def __init__(self, *args, **kw):
             super(ManifestSource, self).__init__(*args, **kw)
-            self.sample = (item, dict())
+            self.sample = (root, dict(), news, aggregator, events, front_page, members)
 
     provideUtility(ManifestSource,
         name=u'quintagroup.transmogrifier.tests.manifestsource')
-
-    from quintagroup.transmogrifier.manifest import ManifestSection
-    section = ManifestSection(test.globs['transmogrifier'], 
-        'manifest', {'blueprint': ''}, iter(()))
-    data = section.createManifest(item['_entries'])
-    test.globs['data'] = data
 
 def marshallSetUp(test):
     sectionsSetUp(test)
@@ -576,66 +597,6 @@ def readerSetUp(test):
     context.SnapshotImportContext = type('Snapshot', (MockImportContext,),
         {'listDirectory': lambda self, path: []})
 
-def manifestImportSetUp(test):
-    sectionsSetUp(test)
-
-    man1 = """<?xml version="1.0" ?>
-<manifest>
-  <record type="Document">document1</record>
-  <record type="Folder">folder1</record>
-</manifest>
-"""
-
-    man2 = """<?xml version="1.0" ?>
-<manifest>
-  <record type="Document">document2</record>
-  <record type="Document">document3</record>
-</manifest>
-"""
-
-    item1 = dict(
-        _path='',
-        _files=dict(
-            manifest=dict(
-                name='.objects.xml',
-                data=man1
-            )
-        )
-    )
-
-    item2 = dict(
-        _path='document1',
-    )
-
-    item3 = dict(
-        _path='folder1',
-        _files=dict(
-            manifest=dict(
-                name='.objects.xml',
-                data=man2
-            )
-        )
-    )
-
-    item4 = dict(
-        _path='folder1/document2',
-    )
-
-    item5 = dict(
-        _path='document4',
-    )
-
-    class ManifestSource(SampleSource):
-        classProvides(ISectionBlueprint)
-        implements(ISection)
-
-        def __init__(self, *args, **kw):
-            super(ManifestSource, self).__init__(*args, **kw)
-            self.sample = (item1, dict(), item2, item3, item4, item5)
-
-    provideUtility(ManifestSource,
-        name=u'quintagroup.transmogrifier.tests.manifestsource')
-
 def substitutionSetUp(test):
     sectionsSetUp(test)
 
@@ -767,9 +728,6 @@ def test_suite():
         doctest.DocFileSuite(
             'reader.txt',
             setUp=readerSetUp, tearDown=tearDown),
-        doctest.DocFileSuite(
-            'manifest_import.txt',
-            setUp=manifestImportSetUp, tearDown=tearDown),
         doctest.DocFileSuite(
             'substitution.txt',
             setUp=substitutionSetUp, tearDown=tearDown),

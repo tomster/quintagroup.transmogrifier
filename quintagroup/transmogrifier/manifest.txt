@@ -1,40 +1,76 @@
-Manifest section
-================
+Manifest exporter and importer sections
+=======================================
 
-A manifest section is used to create listing in XML format of all objects
-contained in some folder. Manifest section blueprint name is 
-``quintagroup.transmogrifier.manifest``.
+A manifest exporter and importer sections are used to generate and parse
+manifest files - listings of objects contained in some folder in XML format.
+These listings are needed to set portal types for pipeline items and also act
+as filter on them - items not listed in manifest will be removed. The manifest
+exporter section blueprint name is
+``quintagroup.transmogrifier.manifestsexporter`` and importer section blueprint
+name is ``quintagroup.transmogrifier.manifestimporter``.
+
+Both sections has ``files-key`` option that gives key in item where XML data
+will be or is stored (default is ``_files``). Exporter section has
+``entries-key`` option, which specifies key in item where list of 
+(object_id, portal_type) pairs that represents folder contents is stored 
+(default is ``_entries``). Importer section has ``path-key`` option which
+specifies key in item where path to object is stored (default is ``_path``).
 
 >>> manifest = """
 ... [transmogrifier]
 ... pipeline =
 ...     manifestsource
-...     manifest
+...     manifestexporter
+...     manifestimporter
 ...     printer
+...     dataprinter
 ... 
 ... [manifestsource]
 ... blueprint = quintagroup.transmogrifier.tests.manifestsource
 ... 
-... [manifest]
-... blueprint = quintagroup.transmogrifier.manifest
+... [manifestexporter]
+... blueprint = quintagroup.transmogrifier.manifestexporter
 ... 
+... [manifestimporter]
+... blueprint = quintagroup.transmogrifier.manifestimporter
+...
 ... [printer]
 ... blueprint = collective.transmogrifier.sections.tests.pprinter
+... 
+... [dataprinter]
+... blueprint = quintagroup.transmogrifier.tests.dataprinter
+... print = 
+...     _files
+...     manifest
+...     data
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.manifest',
 ...                manifest)
->>> transmogrifier(u'quintagroup.transmogrifier.tests.manifest') # doctest: +ELLIPSIS
-{'_entries': (('document1', 'Document'),
-              ('folder1', 'Folder'),
-              ('document3', 'Document')),
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.manifest') # doctest: +ELLIPSIS, +REPORT_NDIFF
+{'_entries': (('news', 'Folder'),
+              ('events', 'Folder'),
+              ('front-page', 'Document')),
  '_files': {'manifest': {'data': ...
-                         'name': '.objects.xml'}}}
-{}
->>> print data
+                         'name': '.objects.xml'}},
+ '_path': ''}
 <?xml version="1.0" ?>
 <manifest>
-  <record type="Document">document1</record>
-  <record type="Folder">folder1</record>
-  <record type="Document">document3</record>
+  <record type="Folder">news</record>
+  <record type="Folder">events</record>
+  <record type="Document">front-page</record>
 </manifest>
 <BLANKLINE>
+{'_entries': (('aggregator', 'Topic'), ('not-existing', 'SomeType')),
+ '_files': {'manifest': {'data': ...
+                         'name': '.objects.xml'}},
+ '_path': 'news',
+ '_type': 'Folder'}
+<?xml version="1.0" ?>
+<manifest>
+  <record type="Topic">aggregator</record>
+  <record type="SomeType">not-existing</record>
+</manifest>
+<BLANKLINE>
+{'_type': 'Topic', '_path': 'news/aggregator'}
+{'_type': 'Folder', '_path': 'events'}
+{'_type': 'Document', '_path': 'front-page'}

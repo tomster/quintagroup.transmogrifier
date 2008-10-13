@@ -6,7 +6,7 @@ from zope.interface import classProvides, implements
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 
-class ManifestSection(object):
+class ManifestExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
 
@@ -15,6 +15,7 @@ class ManifestSection(object):
         self.context = transmogrifier.context
 
         self.entrieskey = defaultMatcher(options, 'entries-key', name, 'entries')
+        self.fileskey = options.get('files-key', '_files').strip()
 
     def __iter__(self):
         for item in self.previous:
@@ -26,23 +27,23 @@ class ManifestSection(object):
 
             if manifest:
                 files = item.setdefault('_files', {})
-                item['_files']['manifest'] = {
+                item[self.fileskey]['manifest'] = {
                     'name': '.objects.xml',
                     'data': manifest,
                 }
 
             yield item
 
-    def createManifest(self, data):
-        if not data:
+    def createManifest(self, entries):
+        if not entries:
             return None
         manifest = '<?xml version="1.0" ?>\n<manifest>\n'
-        for obj_id, obj_type in data:
+        for obj_id, obj_type in entries:
             manifest += '  <record type="%s">%s</record>\n' % (obj_type, obj_id)
         manifest += "</manifest>\n"
         return manifest
 
-class ManifestImportSection(object):
+class ManifestImporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
 

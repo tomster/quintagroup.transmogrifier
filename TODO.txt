@@ -1,9 +1,7 @@
 TODO
 ====
 
-- Reference fields can't be imported now, fix it.
-
-- Make cleaning in manifest export/import sections.
+- Remove importing of object UIDs
 
 - Create tests for ``datacorrector`` adapters and GS Content steps.
 

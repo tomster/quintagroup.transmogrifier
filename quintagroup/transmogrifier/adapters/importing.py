@@ -1,3 +1,4 @@
+import re
 from xml.dom import minidom
 
 from zope.interface import implements
@@ -21,9 +22,17 @@ class ReferenceImporter(object):
         self.context = context
 
     def __call__(self, data):
+        # uid = self.context.UID()
+        uid = self.getUID(data['data'])
+        EXISTING_UIDS[uid] = None
         data['data'] = self.importReferences(data['data'])
-        EXISTING_UIDS[self.context.UID()] = None
         return data
+
+    def getUID(self, xml):
+       start = re.search(r'<uid>', xml).end()
+       end = re.search(r'</uid>', xml).start()
+       uid = xml[start:end]
+       return uid.strip()
 
     def importReferences(self, data):
         """ Marshall 1.0.0 doesn't import references, do it manually.
@@ -62,9 +71,8 @@ class FileImporter(ReferenceImporter):
     implements(IImportDataCorrector)
 
     def __call__(self, data):
-        xml = data['data']
-        xml = self.updateFileFields(xml)
-        data['data'] = self.importReferences(xml)
+        data = super(FileImporter, self).__call__(data)
+        data['data'] = self.updateFileFields(data['data'])
         return data
 
     def updateFileFields(self, data):

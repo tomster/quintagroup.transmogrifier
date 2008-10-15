@@ -91,6 +91,11 @@
         name="quintagroup.transmogrifier.logger"
         />
 
+    <utility
+        component=".references.ReferencesImporterSection"
+        name="quintagroup.transmogrifier.referencesimporter"
+        />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

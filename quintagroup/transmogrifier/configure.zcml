@@ -5,12 +5,9 @@
     xmlns:gs="http://namespaces.zope.org/genericsetup"
     i18n_domain="quintagroup.transmogrifier">
 
-    <!--<five:registerPackage package="." initialize=".initialize" />-->
-
     <include package="collective.transmogrifier" file="meta.zcml" />
     <include package="collective.transmogrifier" />
     <include package="plone.app.transmogrifier" />
-    <!--<include package="." file="meta.zcml" />-->
 
     <!-- register our blueprints -->
     <utility

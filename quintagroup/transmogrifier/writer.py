@@ -9,6 +9,9 @@ from collective.transmogrifier.utils import defaultMatcher
 from Products.GenericSetup import context
 from Products.CMFCore import utils
 
+# import monkey pathes for GS TarballContext
+import quintagroup.transmogrifier.patches
+
 class WriterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)

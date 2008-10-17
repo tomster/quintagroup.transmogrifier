@@ -6,3 +6,5 @@ TODO
 - Create tests for ``datacorrector`` adapters and GS Content steps.
 
 - Rewrite FileExporter/FileImporter adapters as pipeline sections.
+
+- Add firing of ObjectInitializedEvent im ``marshall`` section

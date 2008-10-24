@@ -24,15 +24,20 @@ class ReferenceImporter(object):
     def __call__(self, data):
         # uid = self.context.UID()
         uid = self.getUID(data['data'])
-        EXISTING_UIDS[uid] = None
+        if uid:
+            EXISTING_UIDS[uid] = None
         data['data'] = self.importReferences(data['data'])
         return data
 
     def getUID(self, xml):
-       start = re.search(r'<uid>', xml).end()
-       end = re.search(r'</uid>', xml).start()
-       uid = xml[start:end]
-       return uid.strip()
+        """ Find 'uid' element and get it's value.
+        """
+        start = re.search(r'<uid>', xml)
+        end = re.search(r'</uid>', xml)
+        if start and end:
+            uid = xml[start.end():end.start()]
+            return uid.strip()
+        return None
 
     def importReferences(self, data):
         """ Marshall 1.0.0 doesn't import references, do it manually.

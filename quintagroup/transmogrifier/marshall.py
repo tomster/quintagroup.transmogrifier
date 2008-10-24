@@ -6,6 +6,8 @@ from collective.transmogrifier.utils import defaultMatcher
 
 from Products.Marshall import registry
 from Products.Archetypes.interfaces import IBaseObject
+from Products.Archetypes.event import ObjectInitializedEvent
+from Products.Archetypes.event import ObjectEditedEvent
 
 class MarshallerSection(object):
     classProvides(ISectionBlueprint)
@@ -102,7 +104,16 @@ class DemarshallerSection(object):
                     # we don't want to call reindexObject because modification_date
                     # will be updated, so we call only indexObject (reindexObject does
                     # some things with uid catalog too)
+                    is_new_object = obj.checkCreationFlag()
                     obj.indexObject()
+                    # firing of events
+                    obj.unmarkCreationFlag()
+                    if is_new_object:
+                        event.notify(ObjectInitializedEvent(obj))
+                        obj.at_post_create_script()
+                    else:
+                        event.notify(ObjectEditedEvent(obj))
+                        obj.at_post_edit_script()
                 except ConflictError:
                     raise
                 except:

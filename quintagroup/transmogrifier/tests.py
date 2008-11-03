@@ -48,7 +48,6 @@ class DataPrinter(object):
 ctSectionsSetup = sectionsSetUp
 def sectionsSetUp(test):
     ctSectionsSetup(test)
-    # load meta.zcml of directives that are used in out package config
     import Products.GenericSetup
     zcml.load_config('meta.zcml', Products.GenericSetup)
     zcml.load_config('configure.zcml', quintagroup.transmogrifier)
@@ -165,14 +164,31 @@ def marshallSetUp(test):
 
     from Products.Archetypes.interfaces import IBaseObject
 
-    class MockCriterion(object):
+    class MockBase(object):
+        def checkCreationFlag(self):
+            return True
+
+        def unmarkCreationFlag(self):
+            pass
+
+        def at_post_create_script(self):
+            pass
+
+        def at_post_edit_script(self):
+            pass
+
+        indexed = ()
+        def indexObject(self):
+            self.indexed += (self._last_path,)
+
+    class MockCriterion(MockBase):
         implements(IBaseObject)
         _last_path = None
         indexed = ()
         def indexObject(self):
             self.indexed += (self._last_path,)
 
-    class MockPortal(object):
+    class MockPortal(MockBase):
         implements(IBaseObject)
 
         criterion = MockCriterion()

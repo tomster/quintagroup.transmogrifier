@@ -716,6 +716,77 @@ def xsltSetUp(test):
     XSLTSection.applyTransformations = lambda self, xml, xslt: 'transformed xml'
     test.globs['stylesheet_registry'] = stylesheet_registry
 
+def binarySetUp(test):
+    sectionsSetUp(test)
+
+    from Products.Archetypes.interfaces import IBaseObject
+
+    class MockPortal(object):
+        implements(IBaseObject)
+
+        _last_path = None
+        def unrestrictedTraverse(self, path, default):
+            if path[0] == '/':
+                return default # path is absolute
+            if isinstance(path, unicode):
+                return default
+            if path == 'not/existing/bar':
+                return default
+            if path.endswith('/notatcontent'):
+                return object()
+            self._last_path = path
+            return self
+
+        fields = ['id', 'title', 'file', 'image']
+
+        def Schema(self):
+            return dict.fromkeys(self.fields)
+
+        def isBinary(self, field):
+            return field in ('file',) #, 'image')
+
+        def getField(self, field):
+            return self
+
+        def getBaseUnit(self, obj):
+            return self
+
+        def getFilename(self):
+            return "archive.tar.gz"
+
+        def getContentType(self):
+            return 'application/x-tar'
+
+        def getRaw(self):
+            return "binary data"
+
+        def getMutator(self, obj):
+            return self
+
+        updated = ()
+        def __call__(self, data, filename=None, mimetype=None):
+            self.updated += (filename, mimetype, data)
+
+    portal = MockPortal()
+    test.globs['plone'] = portal
+    test.globs['transmogrifier'].context = test.globs['plone']
+
+    class BinarySource(SampleSource):
+        classProvides(ISectionBlueprint)
+        implements(ISection)
+
+        def __init__(self, *args, **kw):
+            super(BinarySource, self).__init__(*args, **kw)
+            self.sample = (
+                dict(),
+                dict(_path='not/existing/bar'),
+                dict(_path='spam/eggs/notatcontent'),
+                dict(_path='spam/eggs/foo'),
+            )
+
+    provideUtility(BinarySource,
+        name=u'quintagroup.transmogrifier.tests.binarysource')
+
 def test_suite():
     import sys
     suite = unittest.findTestCases(sys.modules[__name__])
@@ -750,5 +821,8 @@ def test_suite():
         doctest.DocFileSuite(
             'xslt.txt',
             setUp=xsltSetUp, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'binary.txt',
+            setUp=binarySetUp, tearDown=tearDown),
     ))
     return suite

@@ -84,10 +84,14 @@ class CommentsExporterSection(object):
 
             root.appendChild(item_elem)
 
-        # all comments are strings encoded in 'utf-8' and they will properly
-        # saved in xml file, but if we explicitly give 'utf-8' encoding
-        # UnicodeDecodeError will be raised when they have non-ascii chars
-        data = self.doc.toprettyxml(indent='  ') #, encoding='utf-8')
+
+        try:
+            data = self.doc.toprettyxml(indent='  ', encoding='utf-8')
+        except UnicodeError, e:
+            # all comments are strings encoded in 'utf-8' and they will properly
+            # saved in xml file, but if we explicitly give 'utf-8' encoding
+            # UnicodeDecodeError will be raised when they have non-ascii chars
+            data = self.doc.toprettyxml(indent='  ')
 
         self.doc.unlink()
         return data

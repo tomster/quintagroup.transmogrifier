@@ -14,29 +14,6 @@
         />
 
     <adapter
-        for="Products.ATContentTypes.interface.IATFile"
-        factory=".exporting.FileExporter"
-        name="marshall"
-        />
-    <adapter
-        for="Products.ATContentTypes.interface.IATFile"
-        factory=".importing.FileImporter"
-        name="marshall"
-        />
-
-    <adapter
-        for="Products.ATContentTypes.interface.IATImage"
-        factory=".exporting.FileExporter"
-        name="marshall"
-        />
-
-    <adapter
-        for="Products.ATContentTypes.interface.IATImage"
-        factory=".importing.FileImporter"
-        name="marshall"
-        />
-
-    <adapter
         factory=".exporting.CriterionExporter"
         name="marshall"
         />

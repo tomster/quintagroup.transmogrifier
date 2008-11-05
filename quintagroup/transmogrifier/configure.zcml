@@ -93,6 +93,16 @@
         name="quintagroup.transmogrifier.referencesimporter"
         />
 
+    <utility
+        component=".binary.FileExporterSection"
+        name="quintagroup.transmogrifier.fileexporter"
+        />
+
+    <utility
+        component=".binary.FileImporterSection"
+        name="quintagroup.transmogrifier.fileimporter"
+        />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

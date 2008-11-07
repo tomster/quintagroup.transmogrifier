@@ -787,6 +787,85 @@ def binarySetUp(test):
     provideUtility(BinarySource,
         name=u'quintagroup.transmogrifier.tests.binarysource')
 
+from DateTime import DateTime
+
+def catalogSourceSetUp(test):
+    sectionsSetUp(test)
+
+    class MockContent(dict):
+        def __init__(self, **kw):
+            self.update(kw)
+
+        def getPath(self):
+            return self['path']
+
+        @property
+        def getId(self):
+            path = self.getPath()
+            return path.rsplit('/', 1)[-1]
+
+        @property
+        def Type(self):
+            return self['portal_type']
+
+    class MockPortal(dict):
+        #implements(IFolderish)
+
+        content = ()
+        def __call__(self, **kw):
+            res = []
+            for obj in self.content:
+                matched = False
+                for index, query in kw.items():
+                    if index not in obj:
+                        continue
+                    matched = True
+                    if index == 'modified':
+                        if isinstance(query, dict):
+                            value = query['query']
+                            range_ = query['range']
+                            if range_ == 'min' and DateTime(obj[index]) >= DateTime(value):
+                                matched = True
+                            elif range_ == 'max' and DateTime(obj[index]) <= DateTime(value):
+                                matched = True
+                            else:
+                                matched = False
+                        else:
+                            if DateTime(obj[index]) == DateTime(query):
+                                matched = True
+                            else:
+                                matched = False
+                    elif matched and index == 'path':
+                        if obj[index].startswith(query):
+                            matched = True
+                        else:
+                            matched = False
+                    elif matched:
+                        if obj[index] == query:
+                            matched = True
+                        else:
+                            matched = False
+                if matched:
+                    res.append(obj)
+
+            return res
+
+    portal = MockPortal()
+    doc1 = MockContent(path='/plone/document1', portal_type='Document',
+        modified='2008/11/01 12:00:00 GMT+0')
+    folder1 = MockContent(path='/plone/folder1', portal_type='Folder',
+        modified='2008/11/02 12:00:00 GMT+0')
+    doc2 = MockContent(path='/plone/folder1/document2', portal_type='Document',
+        modified='2008/11/03 12:00:00 GMT+0')
+    doc3 = MockContent(path='/plone/folder1/document3', portal_type='Document',
+        modified='2008/11/01 12:00:00 GMT+0')
+    portal.content = (doc1, folder1, doc2, doc3)
+    #portal['document4'] = MockContent(path='/plone/document4', portal_type='Document',
+        #modified='2008/11/04 12:00:00 GMT+0')
+
+    test.globs['plone'] = portal
+    test.globs['transmogrifier'].context = test.globs['plone']
+
 def test_suite():
     import sys
     suite = unittest.findTestCases(sys.modules[__name__])
@@ -824,5 +903,8 @@ def test_suite():
         doctest.DocFileSuite(
             'binary.txt',
             setUp=binarySetUp, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'catalogsource.txt',
+            setUp=catalogSourceSetUp, tearDown=tearDown),
     ))
     return suite

@@ -50,7 +50,7 @@ key where XML data will be or is stored.
 {'_files': {'comments': {'data': ...
                          'name': '.comments.xml'}},
  '_path': 'spam/eggs/foo'}
-<?xml version="1.0" ?>
+...
 <discussion>
   <item id="1">
     <field name="Creator">

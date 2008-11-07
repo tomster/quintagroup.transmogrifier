@@ -103,6 +103,11 @@
         name="quintagroup.transmogrifier.fileimporter"
         />
 
+    <utility
+        component=".catalogsource.CatalogSourceSection"
+        name="quintagroup.transmogrifier.catalogsource"
+        />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

@@ -34,26 +34,47 @@ class CatalogSourceSection(object):
         for item in self.previous:
             yield item
 
-        for brain in self.catalog(**self.query):
+        exported = []
+
+        results = list(self.catalog(**self.query))
+        results.sort(key=lambda x: x.getPath())
+        for brain in results:
+            # discussion items are get catalogued too
+            # we need to skip them
+            if brain.Type == 'Discussion Item':
+                continue
+
             path = brain.getPath()
-            # path == '/plone/folder'
-            container_path = path[:path.rfind('/')]
-            # container_path == '/plone'
+
+            # folderish objects are tried to export twice:
+            # when their contained items are exported and when they are
+            # returned in catalog search results
+            if path in exported:
+                continue
+            exported.append(path)
+
+            container_path = path.rsplit('/', 1)[0]
             contained = self.getContained(container_path)
-            if contained:
+            if contained and container_path not in exported:
+                exported.append(container_path)
                 yield {
-                    '_path': '/'.join(path.split('/')[2:-1]),
-                    '_entries': contained,
+                    self.pathkey: '/'.join(path.split('/')[2:-1]),
+                    self.entrieskey: contained,
                 }
             item = {
-                '_path': '/'.join(path.split('/')[2:]),
+                self.pathkey: '/'.join(path.split('/')[2:]),
             }
+            if brain.is_folderish:
+                contained = self.getContained(path)
+                if contained:
+                    item[self.entrieskey] = contained
+
             yield item
 
     def getContained(self, path):
-        """ path is '/plone/folder'
+        """ Return list of (object_id, portal_type) for objects that are returned by catalog
+            and contained in folder with given 'path'.
         """
-        # check if this is right
         results = []
         raw_results = self.catalog(path=path, **self.query)
         for brain in raw_results:

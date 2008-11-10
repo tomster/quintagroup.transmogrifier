@@ -16,8 +16,6 @@ from Products.Five import zcml
 import quintagroup.transmogrifier
 from quintagroup.transmogrifier.xslt import stylesheet_registry
 
-# Doctest support
-
 class DataPrinter(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -808,6 +806,10 @@ def catalogSourceSetUp(test):
         def Type(self):
             return self['portal_type']
 
+        @property
+        def is_folderish(self):
+            return self['portal_type'] == 'Folder' and True or False
+
     class MockPortal(dict):
         #implements(IFolderish)
 
@@ -815,12 +817,12 @@ def catalogSourceSetUp(test):
         def __call__(self, **kw):
             res = []
             for obj in self.content:
-                matched = False
+                matched = True
                 for index, query in kw.items():
                     if index not in obj:
-                        continue
-                    matched = True
-                    if index == 'modified':
+                        matched = False
+                        break
+                    if matched and index == 'modified':
                         if isinstance(query, dict):
                             value = query['query']
                             range_ = query['range']
@@ -852,16 +854,17 @@ def catalogSourceSetUp(test):
 
     portal = MockPortal()
     doc1 = MockContent(path='/plone/document1', portal_type='Document',
-        modified='2008/11/01 12:00:00 GMT+0')
+        modified='2008-11-01T12:00:00Z')
     folder1 = MockContent(path='/plone/folder1', portal_type='Folder',
-        modified='2008/11/02 12:00:00 GMT+0')
+        modified='2008-11-04T12:00:00Z')
     doc2 = MockContent(path='/plone/folder1/document2', portal_type='Document',
-        modified='2008/11/03 12:00:00 GMT+0')
+        modified='2008-11-02T12:00:00Z')
     doc3 = MockContent(path='/plone/folder1/document3', portal_type='Document',
-        modified='2008/11/01 12:00:00 GMT+0')
-    portal.content = (doc1, folder1, doc2, doc3)
-    #portal['document4'] = MockContent(path='/plone/document4', portal_type='Document',
-        #modified='2008/11/04 12:00:00 GMT+0')
+        modified='2008-11-01T12:00:00Z')
+    doc4 = MockContent(path='/plone/document4', portal_type='Document',
+        modified='2008-11-03T12:00:00Z')
+    # items are sorted on their modification date
+    portal.content = (doc1, doc3, doc2, doc4, folder1)
 
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']

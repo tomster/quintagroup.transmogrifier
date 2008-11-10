@@ -11,7 +11,6 @@ def writeDataFile( self, filename, text, content_type, subdir=None ):
     """ See IExportContext.
     """
     mod_time = time.time()
-
     if subdir is not None:
         elements = subdir.split('/')
         parents = filter(None, elements)
@@ -22,6 +21,7 @@ def writeDataFile( self, filename, text, content_type, subdir=None ):
             except KeyError:
                 info = TarInfo(dirname)
                 info.size = 0
+                info.mode = 509
                 info.mtime = mod_time
                 info.type = DIRTYPE
                 self._archive.addfile(info, StringIO())
@@ -32,6 +32,7 @@ def writeDataFile( self, filename, text, content_type, subdir=None ):
     stream = StringIO( text )
     info = TarInfo( filename )
     info.size = len( text )
+    info.mode = 436
     info.mtime = mod_time
     self._archive.addfile( info, stream )
 

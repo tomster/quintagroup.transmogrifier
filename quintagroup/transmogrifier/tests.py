@@ -797,6 +797,7 @@ def catalogSourceSetUp(test):
     class MockContent(dict):
         def __init__(self, **kw):
             self.update(kw)
+            self['id'] = self.getId
 
         def getPath(self):
             return self['path']
@@ -815,7 +816,6 @@ def catalogSourceSetUp(test):
             return self['portal_type'] == 'Folder' and True or False
 
     class MockPortal(dict):
-        #implements(IFolderish)
 
         content = ()
         def __call__(self, **kw):
@@ -868,9 +868,11 @@ def catalogSourceSetUp(test):
     folder2 = MockContent(path='/plone/folder2', portal_type='Folder',
         modified='2008-11-02T12:00:00Z')
     doc4 = MockContent(path='/plone/folder2/document4', portal_type='Document',
+        modified='2008-11-01T12:00:00Z')
+    comment = MockContent(path='/plone/folder2/document4/talkback/1234567890', portal_type='Discussion Item',
         modified='2008-11-02T12:00:00Z')
     # items are sorted on their modification date
-    portal.content = (doc1, folder1, folder2, doc2, doc3, doc4)
+    portal.content = (doc1, folder1, folder2, doc2, doc3, doc4, comment)
 
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']

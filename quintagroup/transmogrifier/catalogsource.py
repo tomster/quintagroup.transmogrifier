@@ -46,12 +46,15 @@ class CatalogSourceSection(object):
         results = list(self.catalog(**self.query))
         results.sort(key=lambda x: x.getPath())
         for brain in results:
-            # discussion items are get catalogued too
+            # discussion items are indexed and they must be replaced to
+            # content objects to which they correspond
             # we need to skip them
             if brain.Type == 'Discussion Item':
-                continue
-
-            path = brain.getPath()
+                path =  '/'.join(brain.getPath().split('/')[:-2])
+                cp, id_ = path.rsplit('/', 1)
+                brain = self.catalog(path=cp, id=id_)[0]
+            else:
+                path = brain.getPath()
 
             # folderish objects are tried to export twice:
             # when their contained items are exported and when they are
@@ -89,7 +92,7 @@ class CatalogSourceSection(object):
                 if contained:
                     item[self.entrieskey] = contained
 
-            self.storage.append(i[self.pathkey])
+            self.storage.append(item[self.pathkey])
             yield item
 
         # cleanup

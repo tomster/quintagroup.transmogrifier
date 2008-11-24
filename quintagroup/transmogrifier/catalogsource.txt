@@ -45,7 +45,10 @@ Now test functionality of this section.
 >>> registerConfig(u'quintagroup.transmogrifier.tests.catalogsource',
 ...                catalogsource)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.catalogsource') #doctest: +REPORT_NDIFF
-{'_entries': (('document4', 'Document'), ('folder1', 'Folder')), '_path': ''}
-{'_path': 'document4'}
-{'_entries': (('document2', 'Document'),), '_path': 'folder1'}
+{'_entries': (('folder2', 'Folder'), ('folder1', 'Folder')), '_path': ''}
+{'_entries': (('document2', 'Document'), ('document3', 'Document')),
+ '_path': 'folder1'}
 {'_path': 'folder1/document2'}
+{'_path': 'folder1/document3'}
+{'_entries': (('document4', 'Document'),), '_path': 'folder2'}
+{'_path': 'folder2/document4'}

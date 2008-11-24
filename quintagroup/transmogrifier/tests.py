@@ -860,15 +860,17 @@ def catalogSourceSetUp(test):
     doc1 = MockContent(path='/plone/document1', portal_type='Document',
         modified='2008-11-01T12:00:00Z')
     folder1 = MockContent(path='/plone/folder1', portal_type='Folder',
-        modified='2008-11-04T12:00:00Z')
+        modified='2008-11-01T12:00:00Z')
     doc2 = MockContent(path='/plone/folder1/document2', portal_type='Document',
         modified='2008-11-02T12:00:00Z')
     doc3 = MockContent(path='/plone/folder1/document3', portal_type='Document',
-        modified='2008-11-01T12:00:00Z')
-    doc4 = MockContent(path='/plone/document4', portal_type='Document',
-        modified='2008-11-03T12:00:00Z')
+        modified='2008-11-02T12:00:00Z')
+    folder2 = MockContent(path='/plone/folder2', portal_type='Folder',
+        modified='2008-11-02T12:00:00Z')
+    doc4 = MockContent(path='/plone/folder2/document4', portal_type='Document',
+        modified='2008-11-02T12:00:00Z')
     # items are sorted on their modification date
-    portal.content = (doc1, doc3, doc2, doc4, folder1)
+    portal.content = (doc1, folder1, folder2, doc2, doc3, doc4)
 
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']

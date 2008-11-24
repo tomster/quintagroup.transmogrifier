@@ -46,8 +46,12 @@ class DataPrinter(object):
 ctSectionsSetup = sectionsSetUp
 def sectionsSetUp(test):
     ctSectionsSetup(test)
+    import Products.Five
     import Products.GenericSetup
+    import zope.annotation
+    zcml.load_config('meta.zcml', Products.Five)
     zcml.load_config('meta.zcml', Products.GenericSetup)
+    zcml.load_config('configure.zcml', zope.annotation)
     zcml.load_config('configure.zcml', quintagroup.transmogrifier)
 
     from Products.CMFCore import utils

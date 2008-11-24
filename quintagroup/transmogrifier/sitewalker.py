@@ -1,9 +1,12 @@
 from zope.interface import classProvides, implements
+from zope.annotation.interfaces import IAnnotations
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 
 from Products.CMFCore.interfaces import IFolderish
 from Products.Archetypes.interfaces import IBaseFolder
+
+from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
 class SiteWalkerSection(object):
     classProvides(ISectionBlueprint)
@@ -12,6 +15,12 @@ class SiteWalkerSection(object):
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
         self.context = transmogrifier.context
+        self.pathkey = options.get('path-key', '_path').strip()
+        self.typekey = options.get('type-key', '_type').strip()
+        self.entrieskey = options.get('entries-key', '_entries').strip()
+        # this is used for communication with 'logger' section
+        self.anno = IAnnotations(transmogrifier)
+        self.storage = self.anno.setdefault(VALIDATIONKEY, [])
 
     def walk(self, obj):
         if IFolderish.providedBy(obj) or IBaseFolder.providedBy(obj):
@@ -29,10 +38,16 @@ class SiteWalkerSection(object):
 
         for obj, contained in self.walk(self.context):
             item = {
-                '_path': '/'.join(obj.getPhysicalPath()[2:]),
-                '_type': obj.getPortalTypeName(),
+                self.pathkey: '/'.join(obj.getPhysicalPath()[2:]),
+                self.typekey: obj.getPortalTypeName(),
             }
             if contained:
-                item['_entries'] = contained
+                item[self.entrieskey] = contained
+            # add item path to stack
+            self.storage.append(item[self.pathkey])
+        
             yield item
 
+        # cleanup
+        if VALIDATIONKEY in self.anno:
+            del self.anno[VALIDATIONKEY]

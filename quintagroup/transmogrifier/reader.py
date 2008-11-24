@@ -1,6 +1,7 @@
 import os.path
 
 from zope.interface import classProvides, implements
+from zope.annotation.interfaces import IAnnotations
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
@@ -10,6 +11,7 @@ from Products.CMFCore import utils
 
 # import monkey pathes for GS TarballContext
 import quintagroup.transmogrifier.patches
+from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
 class ReaderSection(object):
     classProvides(ISectionBlueprint)
@@ -19,6 +21,9 @@ class ReaderSection(object):
         self.previous = previous
         self.context = transmogrifier.context
         self.options = options
+
+        self.anno = IAnnotations(transmogrifier)
+        self.storage = self.anno.setdefault(VALIDATIONKEY, [])
 
         self.pathkey = options.get('path-key', '_path').strip()
         self.fileskey = options.get('files-key', '_files').strip()
@@ -52,6 +57,8 @@ class ReaderSection(object):
 
     def walk(self, top):
         names = self.import_context.listDirectory(top)
+        if names is None:
+            names = []
         yield self.readFiles(top, names)
         for name in names:
             name = os.path.join(top, name)
@@ -81,4 +88,8 @@ class ReaderSection(object):
         for item in self.walk(self.prefix):
             # add import context to item (some next section may use it)
             item[self.contextkey] = self.import_context
+            self.storage.append(item[self.pathkey])
             yield item
+
+        if VALIDATIONKEY in self.anno:
+            del self.anno[VALIDATIONKEY]

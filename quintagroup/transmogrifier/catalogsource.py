@@ -49,7 +49,7 @@ class CatalogSourceSection(object):
             # discussion items are indexed and they must be replaced to
             # content objects to which they correspond
             # we need to skip them
-            if brain.Type == 'Discussion Item':
+            if brain.portal_type == 'Discussion Item':
                 path =  '/'.join(brain.getPath().split('/')[:-2])
                 cp, id_ = path.rsplit('/', 1)
                 brain = self.catalog(path=cp, id=id_)[0]
@@ -127,5 +127,5 @@ class CatalogSourceSection(object):
                 # object is directly stored in folder, that has path given in query
                 seen.append(current)
                 results.append(brain)
-        contained = [(i.getId, str(i.Type)) for i in results]
+        contained = [(i.getId, str(i.portal_type)) for i in results]
         return tuple(contained)

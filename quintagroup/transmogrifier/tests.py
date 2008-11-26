@@ -808,7 +808,7 @@ def catalogSourceSetUp(test):
             return path.rsplit('/', 1)[-1]
 
         @property
-        def Type(self):
+        def portal_type(self):
             return self['portal_type']
 
         @property

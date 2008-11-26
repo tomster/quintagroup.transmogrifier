@@ -122,7 +122,8 @@ def manifestSetUp(test):
         _entries=(
             ('news', 'Folder'),
             ('events', 'Folder'),
-            ('front-page', 'Document')
+            ('front-page', 'Document'),
+            ('only-in-manifest', 'Document')
         )
     )
 
@@ -130,7 +131,7 @@ def manifestSetUp(test):
         _path='news',
         _entries=(
             ('aggregator', 'Topic'),
-            ('not-existing', 'SomeType')
+            ('once-more', 'File')
         )
     )
 
@@ -147,7 +148,7 @@ def manifestSetUp(test):
     )
 
     members = dict(
-        _path='Memebers'
+        _path='Members'
     )
 
     class ManifestSource(SampleSource):

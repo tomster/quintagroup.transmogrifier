@@ -1,3 +1,5 @@
+import traceback
+
 from zope.interface import classProvides, implements
 from zope import event
 
@@ -118,7 +120,10 @@ class DemarshallerSection(object):
                         obj.at_post_edit_script()
                 except ConflictError:
                     raise
-                except:
-                    pass
+                except Exception, e:
+                    print 'Exception in demarshaller section:'
+                    print '-'*60
+                    traceback.print_exc()
+                    print '-'*60
 
             yield item

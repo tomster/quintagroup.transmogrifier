@@ -302,7 +302,7 @@ def propertyManagerSetUp(test):
 
         updated = ()
         def _updateProperty(self, id, value):
-            self.updated += ((self._last_path, id, value.strip()))
+            self.updated += ((self._last_path, id, value))
 
     portal = MockPortal()
     test.globs['plone'] = portal
@@ -746,22 +746,33 @@ def binarySetUp(test):
             return dict.fromkeys(self.fields)
 
         def isBinary(self, field):
-            return field in ('file',) #, 'image')
+            return field in ('file', 'image')
 
+        _current_field = None
         def getField(self, field):
+            self._current_field = field
             return self
 
         def getBaseUnit(self, obj):
             return self
 
         def getFilename(self):
-            return "archive.tar.gz"
+            if self._current_field == 'file':
+                return 'archive.tar.gz'
+            else:
+                return ''
 
         def getContentType(self):
-            return 'application/x-tar'
+            if self._current_field == 'file':
+                return 'application/x-tar'
+            else:
+                return 'image/png'
 
         def getRaw(self):
-            return "binary data"
+            if self._current_field == 'file':
+                return 'binary data'
+            else:
+                return ''
 
         def getMutator(self, obj):
             return self

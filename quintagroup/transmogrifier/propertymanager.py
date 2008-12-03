@@ -16,6 +16,18 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
     def __init__(self):
         pass
 
+    def _getNodeText(self, node):
+        # We override method in NodeAdapterBase, because it return bad property value.
+        # When properties are extracted newline charcters and indentation were added to
+        # them, but these aren't stripped on import. Maybe this method doesn't handle
+        # properly multiline string values, but it is needed for importing.
+        text = ''
+        for child in node.childNodes:
+            if child.nodeName != '#text':
+                continue
+            text += child.nodeValue.strip()
+        return text
+
 class PropertiesExporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)

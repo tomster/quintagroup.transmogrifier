@@ -1,3 +1,4 @@
+import traceback
 from xml.dom import minidom
 
 from zope.interface import classProvides, implements
@@ -38,9 +39,15 @@ class FileExporterSection(object):
             if IBaseObject.providedBy(obj):
                 schema = obj.Schema()
                 binary_fields = {}
+                binary_field_names = []
                 for field in schema.keys():
                     if obj.isBinary(field):
                         fname, ct, data = self.extractFile(obj, field)
+                        binary_field_names.append(field)
+                        if fname == '' or data == '':
+                            # empty file fields have empty filename and empty data
+                            # skip them
+                            continue
                         binary_fields[field] = dict(filename=fname, mimetype=ct)
                         files = item.setdefault(self.fileskey, {})
                         #key = "field-%s" % field
@@ -56,7 +63,8 @@ class FileExporterSection(object):
                         'name': '.file-fields.xml',
                         'data': self.createManifest(binary_fields),
                     }
-                    item[self.excludekey] = binary_fields.keys()
+                if binary_field_names:
+                    item[self.excludekey] = binary_field_names
 
             yield item
 
@@ -120,13 +128,16 @@ class FileImporterSection(object):
                         elif contextkey:
                             data = context.readDataFile("%s/%s" % (path, fname))
                             if data is None:
-                                yield item
+                                continue
                         mutator = obj.getField(field).getMutator(obj)
                         mutator(data, filename=fname, mimetype=ct)
                 except ConflictError:
                     raise
-                except:
-                    pass
+                except Exception, e:
+                    print "Exception in fileimporter section:"
+                    print '-'*60
+                    traceback.print_exc()
+                    print '-'*60
 
             yield item
 

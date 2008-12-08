@@ -32,11 +32,16 @@ class ReferenceExporter(object):
         for fname in self.context.Schema().keys():
             if not isinstance(self.context.Schema()[fname], atapi.ReferenceField):
                 continue
+            values = self.context[fname]
+            if not values:
+                continue
             elem = doc.createElement("field")
             attr = doc.createAttribute("name")
             attr.value = fname
             elem.setAttributeNode(attr)
-            for value in self.context[fname]:
+            if type(values) not in (tuple, list):
+                values = [values,]
+            for value in values:
                 ref = doc.createElement('reference')
                 uid = doc.createElement('uid')
                 value = doc.createTextNode(str(value))

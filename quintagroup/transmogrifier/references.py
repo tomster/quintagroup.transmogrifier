@@ -23,7 +23,9 @@ class ReferencesImporterSection(object):
             yield item
         # finalization of importing references
         rc = getToolByName(self.context, atcfg.REFERENCE_CATALOG)
-        existing = set(EXISTING_UIDS.keys())
+        uc = getToolByName(self.context, atcfg.UID_CATALOG)
+        uids = uc.uniqueValuesFor('UID')
+        existing = set(uids)
         for suid, rel_fields in REFERENCE_QUEUE.items():
             instance = rc.lookupObject(suid)
             for fname, tuids in rel_fields.items():

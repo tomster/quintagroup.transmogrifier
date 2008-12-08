@@ -60,10 +60,10 @@ class ReferenceImporter(object):
                 uids.append(value)
                 if value not in EXISTING_UIDS:
                     validUIDs = False
-            if validUIDs and uids:
+            if validUIDs:
                 mutator = self.context.Schema()[fname].getMutator(self.context)
                 mutator(uids)
-            elif uids:
+            else:
                 suid = str(root.getElementsByTagName('uid')[0].firstChild.nodeValue.strip())
                 REFERENCE_QUEUE[suid] = {}
                 REFERENCE_QUEUE[suid][fname] = uids

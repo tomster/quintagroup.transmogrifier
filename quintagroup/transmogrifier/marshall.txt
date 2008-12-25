@@ -61,3 +61,8 @@ excluded.
 ('spam/eggs/foo', 'topic/criterion')
 >>> pprint.pprint(plone.indexed+plone.criterion.indexed)
 ('spam/eggs/foo', 'topic/criterion')
+>>> plone.updatedRoles
+True
+>>> plone.reindexed
+True
+

@@ -220,6 +220,14 @@ def marshallSetUp(test):
         def indexObject(self):
             self.indexed += (self._last_path,)
 
+        updatedRoles = False
+        def updateRoleMappings(self):
+            self.updatedRoles = True
+
+        reindexed = False
+        def reindexIndex(self, name, extra=None):
+            self.reindexed = True
+
         marshalled = ()
         def marshall(self, instance, **kwargs):
             self.marshalled += ((self._last_path, kwargs.get('atns_exclude')),)

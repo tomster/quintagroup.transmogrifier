@@ -8,6 +8,7 @@ from ZODB.POSException import ConflictError
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 
+from Products.CMFCore import utils
 from Products.Marshall import registry
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.event import ObjectInitializedEvent
@@ -127,3 +128,9 @@ class DemarshallerSection(object):
                     print '-'*60
 
             yield item
+
+        # updating security settings on demarshalled content
+        wtool = utils.getToolByName(self.context, 'portal_workflow')
+        wtool.updateRoleMappings()
+        catalog = utils.getToolByName(self.context, 'portal_catalog')
+        catalog.reindexIndex('allowedRolesAndUsers', None)

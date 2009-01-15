@@ -1,4 +1,5 @@
 import traceback
+from DateTime import DateTime
 
 from zope.interface import classProvides, implements
 from zope import event
@@ -106,6 +107,16 @@ class DemarshallerSection(object):
                 try:
                     data = item[fileskey]['marshall']['data']
                     self.atxml.demarshall(obj, data)
+
+                    # When we change workflow state of content through Plone interface,
+                    # effective date field will be updated to current date (the same
+                    # as modification date) if it was empty, so after demarshalling
+                    # (workflow history was updated) we need to do it manually.
+                    effective_field = obj.getField('effectiveDate')
+                    if effective_field is not None and effective_field.getAccessor(obj)() is None:
+                        date = obj.getField('modification_date').getAccessor(obj)()
+                        effective_field.getMutator(obj)(date)
+
                     # we don't want to call reindexObject because modification_date
                     # will be updated, so we call only indexObject (reindexObject does
                     # some things with uid catalog too)

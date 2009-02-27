@@ -3,6 +3,7 @@
     xmlns:five="http://namespaces.zope.org/five"
     xmlns:transmogrifier="http://namespaces.plone.org/transmogrifier"
     xmlns:gs="http://namespaces.zope.org/genericsetup"
+    xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="quintagroup.transmogrifier">
 
     <include package="collective.transmogrifier" file="meta.zcml" />
@@ -162,6 +163,23 @@
         title="Content (transmogrifier)"
         description="Import the site's structure and content."
         handler=".exportimport.importSiteStructure"
+        />
+
+    <browser:page
+        name="pipeline-config"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        permission="zope2.ViewManagementScreens"
+        class=".configview.PipelineConfigView"
+        template="pipelineconfig.pt"
+        />
+
+    <gs:registerProfile
+        name="default"
+        title="quintagroup.transmogrifier extension profile"
+        directory="profiles/default"
+        description="Profile that adds Content Migration configlet."
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
 </configure>

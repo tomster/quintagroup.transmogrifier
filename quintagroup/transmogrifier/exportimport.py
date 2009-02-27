@@ -1,16 +1,49 @@
+import tempfile
+
 from zope.interface import implements
+from zope.annotation import IAnnotations
 
 from collective.transmogrifier.interfaces import ITransmogrifier
 from collective.transmogrifier.transmogrifier import _load_config, constructPipeline
+from collective.transmogrifier.transmogrifier import configuration_registry
 
 from Products.GenericSetup.context import TarballExportContext, TarballImportContext
 from Products.GenericSetup.interfaces import IFilesystemImporter
 
 from quintagroup.transmogrifier.writer import WriterSection
 from quintagroup.transmogrifier.reader import ReaderSection
+from quintagroup.transmogrifier.configview import ANNOKEY
 
 EXPORT_CONFIG = 'export'
 IMPORT_CONFIG = 'import'
+
+CONFIGFILE = None
+def registerPersistentConfig(site, type_):
+    """ Try to get persistent pipeline configuration of given type (export or import)
+        and register it for use with transmogrifier.
+    """
+    global CONFIGFILE
+    anno = IAnnotations(site)
+    key = '%s.%s' % (ANNOKEY, type_)
+    config = anno.has_key(key) and anno[key] or None
+
+    # unregister old config
+    name = 'persitent-%s' % type_
+    if name in configuration_registry._config_ids:
+        configuration_registry._config_ids.remove(name)
+        del configuration_registry._config_info[name]
+
+    # register new
+    if config is not None:
+        title = description = u'Persistent %s pipeline'
+        tf = tempfile.NamedTemporaryFile('w+t', suffix='.cfg')
+        tf.write(config)
+        tf.seek(0)
+        CONFIGFILE = tf
+        configuration_registry.registerConfiguration(name, title, description, tf.name)
+        return name
+    else:
+        return None
 
 def exportSiteStructure(context):
     transmogrifier = ITransmogrifier(context.getSite())
@@ -18,7 +51,13 @@ def exportSiteStructure(context):
     # we don't use transmogrifer's __call__ method, because we need to do
     # some modification in pipeline sections
 
-    transmogrifier._raw = _load_config(EXPORT_CONFIG)
+    config_name = registerPersistentConfig(context.getSite(), 'export')
+    if config_name is None:
+        transmogrifier._raw = _load_config(EXPORT_CONFIG)
+    else:
+        transmogrifier._raw = _load_config(config_name)
+        global CONFIGFILE
+        CONFIGFILE = None
     transmogrifier._data = {}
 
     options = transmogrifier._raw['transmogrifier']
@@ -54,7 +93,13 @@ def importSiteStructure(context):
     # we don't use transmogrifer's __call__ method, because we need to do
     # some modification in pipeline sections
 
-    transmogrifier._raw = _load_config(IMPORT_CONFIG)
+    config_name = registerPersistentConfig(context.getSite(), 'import')
+    if config_name is None:
+        transmogrifier._raw = _load_config(IMPORT_CONFIG)
+    else:
+        transmogrifier._raw = _load_config(config_name)
+        global CONFIGFILE
+        CONFIGFILE = None
     transmogrifier._data = {}
 
     options = transmogrifier._raw['transmogrifier']

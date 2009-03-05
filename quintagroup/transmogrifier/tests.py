@@ -50,6 +50,7 @@ def sectionsSetUp(test):
     import Products.GenericSetup
     import zope.annotation
     zcml.load_config('meta.zcml', Products.Five)
+    zcml.load_config('permissions.zcml', Products.Five)
     zcml.load_config('meta.zcml', Products.GenericSetup)
     zcml.load_config('configure.zcml', zope.annotation)
     zcml.load_config('configure.zcml', quintagroup.transmogrifier)
@@ -167,7 +168,32 @@ def marshallSetUp(test):
 
     from Products.Archetypes.interfaces import IBaseObject
 
+    class Field(object):
+        def __init__(self, name):
+            self.name = name
+            self.obj = None
+
+        def getAccessor(self, obj):
+            self.obj = obj
+            return self
+
+        def getMutator(self, obj):
+            self.obj = obj
+            return self
+
+        def __call__(self, value=None):
+            if value is None:
+                return self.obj.fields[self.name]
+            else:
+                self.obj.fields[self.name] = value
+
     class MockBase(object):
+        def __init__(self, effective=None):
+            self.fields = {
+                'effectiveDate': effective,
+                'modification_date': 'changed',
+            }
+
         def checkCreationFlag(self):
             return True
 
@@ -184,6 +210,9 @@ def marshallSetUp(test):
         def indexObject(self):
             self.indexed += (self._last_path,)
 
+        def getField(self, fname):
+            return Field(fname)
+
     class MockCriterion(MockBase):
         implements(IBaseObject)
         _last_path = None
@@ -194,7 +223,7 @@ def marshallSetUp(test):
     class MockPortal(MockBase):
         implements(IBaseObject)
 
-        criterion = MockCriterion()
+        criterion = MockCriterion('not changed')
 
         _last_path = None
         def unrestrictedTraverse(self, path, default):

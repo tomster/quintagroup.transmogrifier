@@ -65,4 +65,7 @@ excluded.
 True
 >>> plone.reindexed
 True
-
+>>> plone.fields['effectiveDate']
+'changed'
+>>> plone.criterion.fields['effectiveDate']
+'not changed'

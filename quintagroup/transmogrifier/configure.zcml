@@ -175,7 +175,7 @@
 
     <gs:registerProfile
         name="default"
-        title="quintagroup.transmogrifier extension profile"
+        title="quintagroup.transmogrifier (adds Content Migration configlet)"
         directory="profiles/default"
         description="Profile that adds Content Migration configlet."
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"

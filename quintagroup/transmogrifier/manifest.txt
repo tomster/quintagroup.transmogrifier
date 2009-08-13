@@ -37,6 +37,7 @@ and ``type-key`` option that gives key to store item's portal type (default is
 ... 
 ... [manifestimporter]
 ... blueprint = quintagroup.transmogrifier.manifestimporter
+... enable-source-behaviour = true
 ...
 ... [printer]
 ... blueprint = collective.transmogrifier.sections.tests.pprinter

@@ -78,3 +78,56 @@ def listDirectory(self, path, skip=SKIPPED_FILES,
 
 from Products.GenericSetup.context import TarballImportContext
 TarballImportContext.listDirectory = listDirectory
+
+# patch for this bug in tarfile module - http://bugs.python.org/issue1719898
+from tarfile import TarInfo, nts, GNUTYPE_SPARSE, normpath, DIRTYPE
+def frombuf(cls, buf):
+    """Construct a TarInfo object from a 512 byte string buffer.
+    """
+    tarinfo = cls()
+    tarinfo.name   = nts(buf[0:100])
+    tarinfo.mode   = int(buf[100:108], 8)
+    tarinfo.uid    = int(buf[108:116],8)
+    tarinfo.gid    = int(buf[116:124],8)
+
+    # There are two possible codings for the size field we
+    # have to discriminate, see comment in tobuf() below.
+    if buf[124] != chr(0200):
+        tarinfo.size = long(buf[124:136], 8)
+    else:
+        tarinfo.size = 0L
+        for i in range(11):
+            tarinfo.size <<= 8
+            tarinfo.size += ord(buf[125 + i])
+
+    tarinfo.mtime  = long(buf[136:148], 8)
+    tarinfo.chksum = int(buf[148:156], 8)
+    tarinfo.type   = buf[156:157]
+    tarinfo.linkname = nts(buf[157:257])
+    tarinfo.uname  = nts(buf[265:297])
+    tarinfo.gname  = nts(buf[297:329])
+    try:
+        tarinfo.devmajor = int(buf[329:337], 8)
+        tarinfo.devminor = int(buf[337:345], 8)
+    except ValueError:
+        tarinfo.devmajor = tarinfo.devmajor = 0
+    tarinfo.prefix = buf[345:500]
+
+    # The prefix field is used for filenames > 100 in
+    # the POSIX standard.
+    # name = prefix + '/' + name
+    if tarinfo.type != GNUTYPE_SPARSE:
+        tarinfo.name = normpath(os.path.join(nts(tarinfo.prefix), tarinfo.name))
+
+    # Some old tar programs represent a directory as a regular
+    # file with a trailing slash.
+    if tarinfo.isreg() and tarinfo.name.endswith("/"):
+        tarinfo.type = DIRTYPE
+
+    # Directory names should have a '/' at the end.
+    if tarinfo.isdir():
+        tarinfo.name += "/"
+    return tarinfo
+
+frombuf = classmethod(frombuf)
+TarInfo.frombuf = frombuf

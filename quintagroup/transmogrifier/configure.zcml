@@ -109,6 +109,12 @@
         name="quintagroup.transmogrifier.catalogsource"
         />
 
+    <utility
+        component=".flushcache.FlushCacheSection"
+        name="quintagroup.transmogrifier.flushcache"
+        provides="collective.transmogrifier.interfaces.ISectionBlueprint"
+        />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

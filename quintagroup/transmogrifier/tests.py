@@ -926,6 +926,41 @@ def catalogSourceSetUp(test):
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 
+def flushCacheSetUp(test):
+    sectionsSetUp(test)
+    
+    class DataBase(object):
+        def __init__(self, context):
+            self.context = context
+        
+        def cacheMinimize(self):
+            self.context.cacheMinimized += 1
+
+        def _getDB(self):
+            return self
+    
+    class DataBasePanel(object):
+        def __init__(self, context):
+            self.context = context
+        
+        def getDatabaseNames(self):
+            return ('main',)
+        
+        def __getitem__(self, key):
+            return DataBase(self.context)
+    
+    class ControlPanel(object):
+        def __init__(self, context):
+            self.Database = DataBasePanel(context)
+    
+    class MockPortal(object):
+        def __init__(self):
+            self.cacheMinimized = 0
+            self.Control_Panel = ControlPanel(self)
+        
+    test.globs['plone'] = MockPortal()
+    test.globs['transmogrifier'].context = test.globs['plone']
+
 def test_suite():
     import sys
     suite = unittest.findTestCases(sys.modules[__name__])
@@ -966,5 +1001,8 @@ def test_suite():
         doctest.DocFileSuite(
             'catalogsource.txt',
             setUp=catalogSourceSetUp, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'flushcache.txt',
+            setUp=flushCacheSetUp, tearDown=tearDown),
     ))
     return suite

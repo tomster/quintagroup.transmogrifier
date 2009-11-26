@@ -128,7 +128,7 @@
          overriede those registered in profile without deleting them on manage tab)
     -->
     <gs:exportStep
-        name="content"
+        name="content_quinta"
         title="Content (transmogrifier)"
         description="Export the site's structure and content."
         handler=".exportimport.exportSiteStructure"
@@ -148,7 +148,7 @@
          step).
 
          <gs:importStep
-            name="content"
+            name="content_quinta"
             title="Content (transmogrifier)"
             description="Import the site's structure and content."
             handler=".exportimport.importSiteStructure"
@@ -165,7 +165,7 @@
     -->
 
     <gs:importStep
-        name="content"
+        name="content_quinta"
         title="Content (transmogrifier)"
         description="Import the site's structure and content."
         handler=".exportimport.importSiteStructure"

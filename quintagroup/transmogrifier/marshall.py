@@ -15,6 +15,10 @@ from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent
 
+# override Marshall atxml namespaces
+from quintagroup.transmogrifier import namespaces
+
+
 class MarshallerSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)

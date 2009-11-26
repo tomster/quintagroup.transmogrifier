@@ -23,6 +23,8 @@ class FileExporterSection(object):
         # only this section can add 'excluded_field' for marshalling
         #self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
         self.excludekey = options.get('exclude-key', '_excluded_fields').strip()
+        
+        self.doc = minidom.Document()
 
     def __iter__(self):
         for item in self.previous:
@@ -72,7 +74,13 @@ class FileExporterSection(object):
         """ Return tuple of (filename, content_type, data)
         """
         field = obj.getField(field)
-        base_unit = field.getBaseUnit(obj)
+        # temporarily:
+        # dirty call, I know, just lazy to get method arguments
+        # TextField overrided getBaseUnit method but didn't follow API
+        try:
+            base_unit = field.getBaseUnit(obj, full=True)
+        except TypeError, e:
+            base_unit = field.getBaseUnit(obj)
         fname = base_unit.getFilename() 
         ct = base_unit.getContentType()
         value = base_unit.getRaw()
@@ -80,14 +88,43 @@ class FileExporterSection(object):
         return fname, ct, value
 
     def createManifest(self, binary_fields):
-        manifest = '<?xml version="1.0" ?>\n<manifest>\n'
-        for field, info in binary_fields.items():
-            manifest += '  <field name="%s">\n' % field
-            manifest += '    <filename>%s</filename>\n' % info['filename']
-            manifest += '    <mimetype>%s</mimetype>\n' % info['mimetype']
-            manifest += '  </field>\n'
-        manifest += "</manifest>\n"
-        return manifest
+        doc = self.doc
+
+        root = doc.createElement('manifest')
+        for fname, info in binary_fields.items():
+            # create field node
+            field = doc.createElement('field')
+
+            # set name attribute
+            attr = doc.createAttribute('name')
+            attr.value = fname
+            field.setAttributeNode(attr)
+
+            # create filename node
+            filename = doc.createElement('filename')
+            filename.appendChild(doc.createTextNode(info['filename']))
+            field.appendChild(filename)
+
+            # create mimetype node
+            mimetype = doc.createElement('mimetype')
+            mimetype.appendChild(doc.createTextNode(info['mimetype']))
+            field.appendChild(mimetype)
+
+            root.appendChild(field)
+
+        doc.appendChild(root)
+
+        try:
+            data = doc.toprettyxml(indent='  ', encoding='utf-8')
+        except UnicodeDecodeError, e:
+            # all comments are strings encoded in 'utf-8' and they will properly
+            # saved in xml file, but if we explicitly give 'utf-8' encoding
+            # UnicodeDecodeError will be raised when they have non-ascii chars
+            data = doc.toprettyxml(indent='  ')
+
+        doc.unlink()
+        return data
+
 
 class FileImporterSection(object):
     classProvides(ISectionBlueprint)

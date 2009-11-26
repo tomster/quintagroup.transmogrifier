@@ -20,6 +20,8 @@ class ManifestExporterSection(object):
         self.entrieskey = defaultMatcher(options, 'entries-key', name, 'entries')
         self.fileskey = options.get('files-key', '_files').strip()
 
+        self.doc = minidom.Document()
+
     def __iter__(self):
         for item in self.previous:
             entrieskey = self.entrieskey(*item.keys())[0]
@@ -40,11 +42,37 @@ class ManifestExporterSection(object):
     def createManifest(self, entries):
         if not entries:
             return None
-        manifest = '<?xml version="1.0" ?>\n<manifest>\n'
+
+        doc = self.doc
+        root = doc.createElement('manifest')
+
         for obj_id, obj_type in entries:
-            manifest += '  <record type="%s">%s</record>\n' % (obj_type, obj_id)
-        manifest += "</manifest>\n"
-        return manifest
+            # create record
+            record = doc.createElement('record')
+
+            # set type attribute
+            attr = doc.createAttribute('type')
+            attr.value = obj_type
+            record.setAttributeNode(attr)
+
+            # add object id
+            text = doc.createTextNode(obj_id)
+            record.appendChild(text)
+
+            root.appendChild(record)
+
+        doc.appendChild(root)
+
+        try:
+            data = doc.toprettyxml(indent='  ', encoding='utf-8')
+        except UnicodeDecodeError, e:
+            # all comments are strings encoded in 'utf-8' and they will properly
+            # saved in xml file, but if we explicitly give 'utf-8' encoding
+            # UnicodeDecodeError will be raised when they have non-ascii chars
+            data = doc.toprettyxml(indent='  ')
+
+        doc.unlink()
+        return data
 
 class ManifestImporterSection(object):
     classProvides(ISectionBlueprint)

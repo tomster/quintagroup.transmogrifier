@@ -107,7 +107,7 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
             for sub in child.childNodes:
                 if sub.nodeName == 'element':
                     if len(sub.childNodes) > 0:
-                        value = sub.childNodes[0].nodeValue
+                        value = sub.childNodes[0].nodeValue.strip()
                         if isinstance(value, unicode):
                             value = value.encode(self._encoding)
                         if self._convertToBoolean(sub.getAttribute('remove')
@@ -248,7 +248,8 @@ class PropertiesImporterSection(object):
                 data = item[fileskey]['propertymanager']['data']
                 doc = minidom.parseString(data)
                 root = doc.documentElement
-                for child in root.childNodes:
+                children = [k for k in root.childNodes]
+                for child in children:
                     if child.nodeName != 'property':
                         continue
                     if child.getAttribute('name') in excluded_props:

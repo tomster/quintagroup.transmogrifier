@@ -8,7 +8,7 @@ from ZODB.POSException import ConflictError
 from Products.Archetypes.interfaces import IBaseObject
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
-from collective.transmogrifier.utils import defaultMatcher
+from collective.transmogrifier.utils import defaultMatcher, Condition
 
 class FileExporterSection(object):
     classProvides(ISectionBlueprint)
@@ -23,8 +23,12 @@ class FileExporterSection(object):
         # only this section can add 'excluded_field' for marshalling
         #self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_fields')
         self.excludekey = options.get('exclude-key', '_excluded_fields').strip()
-        
+
+        self.exclude_fieldtypes = filter(None, [i.strip() for i in
+                                         options.get('exclude-fieldtypes', '').splitlines()])
         self.doc = minidom.Document()
+        self.condition = Condition(options.get('condition', 'python:True'),
+                                   transmogrifier, name, options)
 
     def __iter__(self):
         for item in self.previous:
@@ -44,8 +48,10 @@ class FileExporterSection(object):
                 binary_field_names = []
                 for field in schema.keys():
                     if obj.isBinary(field):
-                        fname, ct, data = self.extractFile(obj, field)
                         binary_field_names.append(field)
+                        if not self.condition(item, context=obj, fname=field):
+                            continue
+                        fname, ct, data = self.extractFile(obj, field)
                         if fname == '' or data == '':
                             # empty file fields have empty filename and empty data
                             # skip them
@@ -138,6 +144,9 @@ class FileImporterSection(object):
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
         self.contextkey = defaultMatcher(options, 'context-key', name, 'import_context')
 
+        self.condition = Condition(options.get('condition', 'python:True'),
+                                   transmogrifier, name, options)
+
     def __iter__(self):
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]
@@ -166,6 +175,9 @@ class FileImporterSection(object):
                             data = context.readDataFile("%s/%s" % (path, fname))
                             if data is None:
                                 continue
+                        if not self.condition(item, context=obj, fname=field,
+                            filename=fname, data=data, mimetype=ct):
+                            continue
                         mutator = obj.getField(field).getMutator(obj)
                         mutator(data, filename=fname, mimetype=ct)
                 except ConflictError:

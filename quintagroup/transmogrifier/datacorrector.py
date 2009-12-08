@@ -1,5 +1,5 @@
 from zope.interface import classProvides, implements
-from zope.component import queryAdapter
+from zope.component import queryMultiAdapter
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
@@ -13,6 +13,7 @@ class DataCorrectorSection(object):
 
     def __init__(self, transmogrifier, name, options, previous):
         self.previous = previous
+        self.transmogrifier = transmogrifier
         self.context = transmogrifier.context
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
@@ -51,7 +52,8 @@ class DataCorrectorSection(object):
             for name in self.sources:
                 if not name in file_store:
                     continue
-                adapter = queryAdapter(obj, self.interface, name)
+                adapter = queryMultiAdapter((obj, self.transmogrifier),
+                                            self.interface, name)
                 if adapter:
                     file_store[name] = adapter(file_store[name])
 

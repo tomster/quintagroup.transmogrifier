@@ -7,6 +7,8 @@ from zope.component import adapts
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes import atapi
 
+from collective.transmogrifier.interfaces import ITransmogrifier
+
 from quintagroup.transmogrifier.interfaces import IImportDataCorrector
 
 EXISTING_UIDS = {}
@@ -16,10 +18,11 @@ class ReferenceImporter(object):
     """ Demarshall content from xml file by using of Marshall product.
     """
     implements(IImportDataCorrector)
-    adapts(IBaseObject)
+    adapts(IBaseObject, ITransmogrifier)
 
-    def __init__(self, context):
+    def __init__(self, context, transmogrifier):
         self.context = context
+        self.transmogrifier = transmogrifier
 
     def __call__(self, data):
         # uid = self.context.UID()

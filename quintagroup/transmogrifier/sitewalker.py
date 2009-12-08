@@ -2,6 +2,7 @@ from zope.interface import classProvides, implements
 from zope.annotation.interfaces import IAnnotations
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
+from collective.transmogrifier.utils import Condition
 
 from Products.CMFCore.interfaces import IFolderish
 from Products.Archetypes.interfaces import IBaseFolder
@@ -22,11 +23,19 @@ class SiteWalkerSection(object):
         self.anno = IAnnotations(transmogrifier)
         self.storage = self.anno.setdefault(VALIDATIONKEY, [])
 
+        self.condition = Condition(options.get('condition', 'python:True'),
+                                   transmogrifier, name, options)
+
+    def getContained(self, obj):
+        contained = [(k, v) for k, v in obj.contentItems()
+                        if self.condition(None, context=v)]
+        return tuple(contained)
+
     def walk(self, obj):
         if IFolderish.providedBy(obj) or IBaseFolder.providedBy(obj):
-            contained = [(k, v.getPortalTypeName()) for k, v in obj.contentItems()]
-            yield obj, tuple(contained)
-            for v in obj.contentValues():
+            contained = self.getContained(obj)
+            yield obj, tuple([(k, v.getPortalTypeName()) for k, v in contained])
+            for k, v in contained:
                 for x in self.walk(v):
                     yield x
         else:

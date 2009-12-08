@@ -1,3 +1,4 @@
+from copy import deepcopy
 from xml.dom import minidom
 
 from zope.interface import classProvides, implements
@@ -13,6 +14,9 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
         method uses _convertToBoolean and _getNodeText methods from
         NodeAdapterBase class.
     """
+    
+    _encoding = 'utf-8'
+    
     def __init__(self):
         pass
 
@@ -27,6 +31,115 @@ class Helper(PropertyManagerHelpers, NodeAdapterBase):
                 continue
             text += child.nodeValue.strip()
         return text
+
+    def _extractProperties(self):
+        fragment = self._doc.createDocumentFragment()
+
+        for prop_map in self.context._propertyMap():
+            prop_id = prop_map['id']
+            if prop_id == 'i18n_domain':
+                continue
+
+            # Don't export read-only nodes
+            if 'w' not in prop_map.get('mode', 'wd'):
+                continue
+
+            node = self._doc.createElement('property')
+            node.setAttribute('name', prop_id)
+
+            prop = self.context.getProperty(prop_id)
+            if isinstance(prop, (tuple, list)):
+                for value in prop:
+                    if isinstance(value, str):
+                        value = value.decode(self._encoding)
+                    child = self._doc.createElement('element')
+                    child.appendChild(self._doc.createTextNode(value))
+                    node.appendChild(child)
+            else:
+                if prop_map.get('type') == 'boolean':
+                    prop = unicode(bool(prop))
+                elif isinstance(prop, str):
+                    prop = prop.decode(self._encoding)
+                elif not isinstance(prop, basestring):
+                    prop = unicode(prop)
+                child = self._doc.createTextNode(prop)
+                node.appendChild(child)
+
+            if 'd' in prop_map.get('mode', 'wd') and not prop_id == 'title':
+                prop_type = prop_map.get('type', 'string')
+                node.setAttribute('type', unicode(prop_type))
+                select_variable = prop_map.get('select_variable', None)
+                if select_variable is not None:
+                    node.setAttribute('select_variable', select_variable)
+
+            if hasattr(self, '_i18n_props') and prop_id in self._i18n_props:
+                node.setAttribute('i18n:translate', '')
+
+            fragment.appendChild(node)
+
+        return fragment
+
+    def _initProperties(self, node):
+        obj = self.context
+        if node.hasAttribute('i18n:domain'):
+            i18n_domain = str(node.getAttribute('i18n:domain'))
+            obj._updateProperty('i18n_domain', i18n_domain)
+        for child in node.childNodes:
+            if child.nodeName != 'property':
+                continue
+            prop_id = str(child.getAttribute('name'))
+            prop_map = obj.propdict().get(prop_id, None)
+
+            if prop_map is None:
+                if child.hasAttribute('type'):
+                    val = str(child.getAttribute('select_variable'))
+                    prop_type = str(child.getAttribute('type'))
+                    obj._setProperty(prop_id, val, prop_type)
+                    prop_map = obj.propdict().get(prop_id, None)
+                else:
+                    raise ValueError("undefined property '%s'" % prop_id)
+
+            if not 'w' in prop_map.get('mode', 'wd'):
+                raise BadRequest('%s cannot be changed' % prop_id)
+
+            elements = []
+            remove_elements = []
+            for sub in child.childNodes:
+                if sub.nodeName == 'element':
+                    if len(sub.childNodes) > 0:
+                        value = sub.childNodes[0].nodeValue
+                        if isinstance(value, unicode):
+                            value = value.encode(self._encoding)
+                        if self._convertToBoolean(sub.getAttribute('remove')
+                                                  or 'False'):
+                            remove_elements.append(value)
+                            if value in elements:
+                                elements.remove(value)
+                        else:
+                            elements.append(value)
+                            if value in remove_elements:
+                                remove_elements.remove(value)
+
+            if elements or prop_map.get('type') == 'multiple selection':
+                prop_value = tuple(elements) or ()
+            elif prop_map.get('type') == 'boolean':
+                prop_value = self._convertToBoolean(self._getNodeText(child))
+            else:
+                # if we pass a *string* to _updateProperty, all other values
+                # are converted to the right type
+                prop_value = self._getNodeText(child).encode(self._encoding)
+
+            if not self._convertToBoolean(child.getAttribute('purge')
+                                          or 'True'):
+                # If the purge attribute is False, merge sequences
+                prop = obj.getProperty(prop_id)
+                if isinstance(prop, (tuple, list)):
+                    prop_value = (tuple([p for p in prop
+                                         if p not in prop_value and
+                                            p not in remove_elements]) +
+                                  tuple(prop_value))
+
+            obj._updateProperty(prop_id, prop_value)
 
 class PropertiesExporterSection(object):
     classProvides(ISectionBlueprint)
@@ -75,7 +188,7 @@ class PropertiesExporterSection(object):
                     if elem.nodeName != 'property':
                         continue
                     if elem.getAttribute('name') not in excluded_props:
-                        node.appendChild(elem)
+                        node.appendChild(deepcopy(elem))
                 if node.hasChildNodes():
                     doc.appendChild(node)
                     data = doc.toprettyxml(indent='  ', encoding='utf-8')

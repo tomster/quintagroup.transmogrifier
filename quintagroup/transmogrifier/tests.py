@@ -484,14 +484,16 @@ def dataCorrectorSetUp(test):
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 
+    from collective.transmogrifier.interfaces import ITransmogrifier
     from quintagroup.transmogrifier.interfaces import IExportDataCorrector, \
         IImportDataCorrector
 
     class MockExportAdapter(object):
         implements(IExportDataCorrector)
-        adapts(MockPortal)
-        def __init__(self, context):
+        adapts(MockPortal, ITransmogrifier)
+        def __init__(self, context, transmogrifier):
             self.context = context
+            self.transmogrifier = transmogrifier
 
         def __call__(self, data):
             return "modified export data"
@@ -500,9 +502,10 @@ def dataCorrectorSetUp(test):
 
     class MockImportAdapter(object):
         implements(IImportDataCorrector)
-        adapts(MockPortal)
-        def __init__(self, context):
+        adapts(MockPortal, ITransmogrifier)
+        def __init__(self, context, transmogrifier):
             self.context = context
+            self.transmogrifier = transmogrifier
 
         def __call__(self, data):
             return "modified import data"
@@ -809,7 +812,7 @@ def binarySetUp(test):
             if self._current_field == 'file':
                 return 'binary data'
             else:
-                return ''
+                return 'image'
 
         def getMutator(self, obj):
             return self

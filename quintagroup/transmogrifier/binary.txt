@@ -16,6 +16,9 @@ option, that specifies key where list of file field names will be stored
 (default is ``_excluded_fields``). These list will be used in marshaller
 section.
 
+Also this section provides condition option which, if specified, exports/imports
+this or another binary field only if condition expression evaluates to true.
+
 >>> import pprint
 >>> binary = """
 ... [transmogrifier]
@@ -31,6 +34,7 @@ section.
 ... 
 ... [fileexporter]
 ... blueprint = quintagroup.transmogrifier.fileexporter
+... condition = python:fname != 'image'
 ... 
 ... [dataprinter]
 ... blueprint = quintagroup.transmogrifier.tests.dataprinter
@@ -57,11 +61,15 @@ section.
             'file-fields': {'data': ...,
                             'name': '.file-fields.xml'}},
  '_path': 'spam/eggs/foo'}
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <manifest>
   <field name="file">
-    <filename>archive.tar.gz</filename>
-    <mimetype>application/x-tar</mimetype>
+    <filename>
+      archive.tar.gz
+    </filename>
+    <mimetype>
+      application/x-tar
+    </mimetype>
   </field>
 </manifest>
 <BLANKLINE>
@@ -69,3 +77,18 @@ section.
 ('archive.tar.gz', 'application/x-tar', 'binary data')
 
 TODO: write test for getting data for fields from import context
+
+The ``condition`` expression hass access to the following:
+
+=================== ==========================================================
+ ``item``            the current pipeline item
+ ``transmogrifier``  the transmogrifier
+ ``name``            the name of the splitter section
+ ``options``         the splitter options
+ ``modules``         sys.modules
+ ``context``         the current content object
+ ``fname``           the name of the field being processed
+ ``filename``        the file name binary field is loaded into (import only)
+ ``data``            data read from the file (import only)
+ ``mimetype``        data mimetype (import only)
+=================== ==========================================================

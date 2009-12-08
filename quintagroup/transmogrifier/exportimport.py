@@ -102,9 +102,11 @@ def importSiteStructure(context):
 
     # this function is also called when adding Plone site, so call standard handler
     path = ''
+    prefix = 'structure'
     if 'reader' in transmogrifier._raw:
         path = transmogrifier._raw['reader'].get('path', '')
-    if not context.readDataFile('.objects.xml', subdir=os.path.join(path, 'structure')):
+        prefix = transmogrifier._raw['reader'].get('prefix', 'structure')
+    if not context.readDataFile('.objects.xml', subdir=os.path.join(path, prefix)):
         try:
             from Products.GenericSetup.interfaces import IFilesystemImporter
             IFilesystemImporter(context.getSite()).import_(context, 'structure', True)

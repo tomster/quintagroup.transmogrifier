@@ -49,10 +49,6 @@ def registerPersistentConfig(site, type_):
 
 def exportSiteStructure(context):
 
-    # Only run step if a flag file is present
-    if context.readDataFile('quintagroup.transmogrifier-export.txt') is None:
-        return
-
     transmogrifier = ITransmogrifier(context.getSite())
 
     # we don't use transmogrifer's __call__ method, because we need to do

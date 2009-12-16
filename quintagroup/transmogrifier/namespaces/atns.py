@@ -68,7 +68,10 @@ class ATAttribute(base.ATAttribute):
 
         return True
 
-    def processXmlValue(self, context, value ):
+    def processXmlValue(self, context, value):
+        if value is None:
+            return
+
         value = value.strip()
         if not value:
             return

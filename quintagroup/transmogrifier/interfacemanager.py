@@ -21,11 +21,11 @@ class InterfacesExporterSection(object):
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = options.get('files-key', '_files').strip()
 
-        self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_properties')
+        self.excludekey = defaultMatcher(options, 'exclude-key', name, 'excluded_interfaces')
         self.exclude = filter(None, [i.strip() for i in
                               options.get('exclude', '').splitlines()])
 
-        self.includekey = defaultMatcher(options, 'include-key', name, 'included_properties')
+        self.includekey = defaultMatcher(options, 'include-key', name, 'included_interfaces')
         self.include = filter(None, [i.strip() for i in
                               options.get('include', '').splitlines()])
 

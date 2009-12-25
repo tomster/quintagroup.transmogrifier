@@ -74,12 +74,7 @@ class InterfacesExporterSection(object):
             # create record
             record = doc.createElement('record')
 
-            # set type attribute
-            #attr = doc.createAttribute('type')
-            #attr.value = obj_type
-            #record.setAttributeNode(attr)
-
-            # add object id
+            # add object interface
             text = doc.createTextNode(iface)
             record.appendChild(text)
 

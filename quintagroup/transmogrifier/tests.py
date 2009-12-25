@@ -964,6 +964,63 @@ def flushCacheSetUp(test):
     test.globs['plone'] = MockPortal()
     test.globs['transmogrifier'].context = test.globs['plone']
 
+
+def interfaceManagerSetUp(test):
+    sectionsSetUp(test)
+
+    from zope.annotation.interfaces import IAttributeAnnotatable
+    from zope.interface import alsoProvides as orig_alsoProvides
+    from Products.Archetypes.interfaces import IBaseObject
+
+    class MockPortal(object):
+
+        implements(
+            IAttributeAnnotatable,
+            IBaseObject,
+        )
+
+        _last_path = None
+        def unrestrictedTraverse(self, path, default):
+            if path[0] == '/':
+                return default # path is absolute
+            if isinstance(path, unicode):
+                return default
+            if path == 'not/existing/bar':
+                return default
+            if path.endswith('/notatcontent'):
+                return object()
+            self._last_path = path
+            return self
+
+
+    updated = []
+    test.globs['updated'] = updated
+    def patch_alsoProvides(object, *interfaces):
+        updated.extend([i.__identifier__ for i in interfaces])
+        orig_alsoProvides(object, *interfaces)
+    quintagroup.transmogrifier.interfacemanager.alsoProvides = patch_alsoProvides
+
+    portal = MockPortal()
+    test.globs['plone'] = portal
+    test.globs['transmogrifier'].context = test.globs['plone']
+
+    class InterfaceManagerSource(SampleSource):
+        classProvides(ISectionBlueprint)
+        implements(ISection)
+
+        def __init__(self, *args, **kw):
+            super(InterfaceManagerSource, self).__init__(*args, **kw)
+            self.sample = (
+                dict(),
+                dict(_path='not/existing/bar'),
+                dict(_path='spam/eggs/notatcontent'),
+                dict(_path='spam/eggs/foo'),
+            )
+
+    provideUtility(InterfaceManagerSource,
+        name=u'quintagroup.transmogrifier.tests.interfacemanagersource')
+
+
 def test_suite():
     import sys
     suite = unittest.findTestCases(sys.modules[__name__])
@@ -1007,5 +1064,8 @@ def test_suite():
         doctest.DocFileSuite(
             'flushcache.txt',
             setUp=flushCacheSetUp, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'interfacemanager.txt',
+            setUp=interfaceManagerSetUp, tearDown=tearDown),
     ))
     return suite

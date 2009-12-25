@@ -115,6 +115,16 @@
         provides="collective.transmogrifier.interfaces.ISectionBlueprint"
         />
 
+    <utility
+        component=".interfacemanager.InterfacesExporterSection"
+        name="quintagroup.transmogrifier.interfacesexporter"
+        />
+
+    <utility
+        component=".interfacemanager.InterfacesImporterSection"
+        name="quintagroup.transmogrifier.interfacesimporter"
+        />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

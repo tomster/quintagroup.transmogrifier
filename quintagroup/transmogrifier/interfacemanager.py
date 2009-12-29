@@ -5,8 +5,6 @@ from zope.interface import classProvides, implements
 from zope.interface import providedBy, alsoProvides
 from zope.annotation.interfaces import IAnnotations
 
-from Products.CMFCore import utils
-
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
 
@@ -115,8 +113,6 @@ class InterfacesImporterSection(object):
         self.include = filter(None, [i.strip() for i in
                               options.get('include', '').splitlines()])
 
-        # reindex provided interfaces
-        self.catalog = utils.getToolByName(self.context, 'portal_catalog')
 
     def __iter__(self):
 
@@ -142,8 +138,6 @@ class InterfacesImporterSection(object):
             alsoProvides(obj, *ifaces)
 
             yield item
-
-        self.catalog.reindexIndex('object_provides', None)
 
 
     def extractIfaces(self, obj, data):

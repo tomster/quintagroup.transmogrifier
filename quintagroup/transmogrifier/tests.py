@@ -992,6 +992,10 @@ def interfaceManagerSetUp(test):
             self._last_path = path
             return self
 
+        # implement portal_catalog reindex method
+        def reindexIndex(self, *args, **kwargs):
+            pass
+
 
     updated = []
     test.globs['updated'] = updated

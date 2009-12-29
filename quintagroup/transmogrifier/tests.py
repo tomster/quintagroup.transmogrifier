@@ -972,6 +972,11 @@ def interfaceManagerSetUp(test):
     from zope.interface import alsoProvides as orig_alsoProvides
     from Products.Archetypes.interfaces import IBaseObject
 
+    class MockCatalog(object):
+        def reindexIndex(self, *args, **kwargs):
+            import pdb;pdb.set_trace()
+            pass
+
     class MockPortal(object):
 
         implements(
@@ -991,6 +996,12 @@ def interfaceManagerSetUp(test):
                 return object()
             self._last_path = path
             return self
+
+        #portal_catalog = MockCatalog()
+        # implement portal_catalog reindex method
+        def reindexIndex(self, *args, **kwargs):
+            #import pdb;pdb.set_trace()
+            pass
 
 
     updated = []

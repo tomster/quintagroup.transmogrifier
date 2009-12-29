@@ -89,7 +89,7 @@ def importSiteStructure(context):
 
     # Only run step if a flag file is present
     if context.readDataFile('quintagroup.transmogrifier-import.txt') is None:
-        if context._archive is None:
+        if getattr(context, '_archive', None) is None:
             return
 
     transmogrifier = ITransmogrifier(context.getSite())

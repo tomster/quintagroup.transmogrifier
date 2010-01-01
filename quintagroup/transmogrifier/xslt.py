@@ -136,7 +136,7 @@ class XSLTSection(object):
 
     def applyTransformations(self, xml, xslt):
         if not HAS_LIBS:
-            return xml
+            raise RuntimeError("Can't apply transformations, libxml2/libxslt packages are not available")
         # parse document
         doc = libxml2.parseDoc(xml)
         # parse stylesheet

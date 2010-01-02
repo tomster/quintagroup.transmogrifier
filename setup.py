@@ -19,7 +19,7 @@ setup(name='quintagroup.transmogrifier',
       url='http://quintagroup.com',
       license='GPL',
       packages=find_packages(exclude=['ez_setup']),
-      namespace_packages=['quintagroup', 'quintagroup.transmogrifier'],
+      namespace_packages=['quintagroup'],
       include_package_data=True,
       zip_safe=False,
       install_requires=[

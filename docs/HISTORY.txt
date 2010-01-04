@@ -1,8 +1,25 @@
 Changelog
 =========
 
-0.1 - Unreleased
+0.3 - Unreleased
 ----------------
 
-* Initial release
+0.2
+----------------
+
+ * the "quintagroup.transmogrifier" namespace removed [koval]
+
+ * added interface import/export steps [mylan]
+
+ * merged plone21 branch [piv]
+
+ * various fixes [piv, mylan, koval]
+
+ * history update, release [chervol]
+
+
+0.1 
+----------------
+
+ * Initial release
 

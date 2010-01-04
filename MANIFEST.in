@@ -1,0 +1,2 @@
+recursive-include quintagroup *
+recursive-exclude *.py[co] *.mo

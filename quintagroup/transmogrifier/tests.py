@@ -968,6 +968,7 @@ def flushCacheSetUp(test):
 def interfaceManagerSetUp(test):
     sectionsSetUp(test)
 
+    from zope.interface import Interface
     from zope.annotation.interfaces import IAttributeAnnotatable
     from zope.interface import alsoProvides as orig_alsoProvides
     from Products.Archetypes.interfaces import IBaseObject
@@ -975,7 +976,6 @@ def interfaceManagerSetUp(test):
     class MockPortal(object):
 
         implements(
-            IAttributeAnnotatable,
             IBaseObject,
         )
 
@@ -1005,6 +1005,7 @@ def interfaceManagerSetUp(test):
     quintagroup.transmogrifier.interfacemanager.alsoProvides = patch_alsoProvides
 
     portal = MockPortal()
+    orig_alsoProvides(portal, IAttributeAnnotatable, Interface)
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
 

@@ -23,7 +23,8 @@ alternative way to manage interfaces to serialize and apply to the object.
 behave in opposite way. If both options present - only ``include`` option get
 into consideration. If both options is absent - all interfaces will be
 serialized and/or migrated.
-
+Exporter section exports only Interfaces directly provided by object, so in such
+way we prevent confusion with interfaces, implemented by class itself.
 
 >>> import pprint
 >>> interfacemanager = """
@@ -70,7 +71,7 @@ serialized and/or migrated.
     zope.annotation.interfaces.IAttributeAnnotatable
   </record>
   <record>
-    Products.Archetypes.interfaces._base.IBaseObject
+    zope.interface.Interface
   </record>
 </interfaces>
 <BLANKLINE>

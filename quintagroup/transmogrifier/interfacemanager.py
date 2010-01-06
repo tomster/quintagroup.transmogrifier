@@ -2,7 +2,7 @@ import os.path
 from xml.dom import minidom
 
 from zope.interface import classProvides, implements
-from zope.interface import providedBy, alsoProvides
+from zope.interface import directlyProvidedBy, alsoProvides
 from zope.annotation.interfaces import IAnnotations
 
 from Products.CMFCore import utils
@@ -63,7 +63,7 @@ class InterfacesExporterSection(object):
         doc = self.doc
         root = doc.createElement('interfaces')
 
-        ifaces = [i.__identifier__ for i in providedBy(obj)]
+        ifaces = [i.__identifier__ for i in directlyProvidedBy(obj)]
         if self.include:
             ifaces = filter(lambda i: i in self.include, ifaces)
         elif self.exclude:

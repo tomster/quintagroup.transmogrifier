@@ -1,3 +1,4 @@
+import logging
 from xml.dom import minidom
 
 from zope.interface import classProvides, implements, providedBy
@@ -5,6 +6,9 @@ from zope.component import getUtilitiesFor, queryMultiAdapter, getUtility, \
     getMultiAdapter, adapts
 from zope.component.interfaces import IFactory
 from zope.app.container.interfaces import INameChooser
+from zope.schema._bootstrapinterfaces import ConstraintNotSatisfied
+from zope.schema.interfaces import ICollection
+
 
 from plone.portlets.interfaces import ILocalPortletAssignable, IPortletManager,\
     IPortletAssignmentMapping, IPortletAssignment
@@ -50,6 +54,7 @@ class PortletsExporterSection(object):
                 data = None
 
                 root = self.doc.createElement('portlets')
+
                 for elem in self.exportAssignments(obj):
                     root.appendChild(elem)
                 #for elem in self.exportBlacklists(obj)
@@ -173,6 +178,8 @@ class PortletsImporterSection(object):
         assignment_handler = IPortletAssignmentExportImportHandler(assignment)
         assignment_handler.import_assignment(portlet_interface, node)
 
+logger = logging.getLogger('quintagroup.transmogrifier.portletsimporter')
+
 class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImportHandler):
     """ This adapter is needed because original fails to handle text from 
         pretty printed XML file.
@@ -184,3 +191,41 @@ class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImport
         # strip text to remove newlines and space character from the beginning 
         # and the end
         return text.strip()
+
+    def import_node(self, interface, child):
+        """Import a single <property /> node
+        """
+        property_name = child.getAttribute('name')
+
+        field = interface.get(property_name, None)
+        if field is None:
+            return
+
+        field = field.bind(self.assignment)
+        value = None
+
+        # If we have a collection, we need to look at the value_type.
+        # We look for <element>value</element> child nodes and get the
+        # value from there
+        if ICollection.providedBy(field):
+            value_type = field.value_type
+            value = []
+            for element in child.childNodes:
+                if element.nodeName != 'element':
+                    continue
+                element_value = self.extract_text(element)
+                value.append(self.from_unicode(value_type, element_value))
+            value = self.field_typecast(field, value)
+
+        # Otherwise, just get the value of the <property /> node
+        else:
+            value = self.extract_text(child)
+            value = self.from_unicode(field, value)
+
+        try:
+            field.validate(value)
+        except ConstraintNotSatisfied, e:
+            logger.warning('"%s" value doesn\'t satisfy constaints for "%s:%s" field' % \
+                (value, self.assignment.__name__, field.__name__))
+
+        field.set(self.assignment, value)

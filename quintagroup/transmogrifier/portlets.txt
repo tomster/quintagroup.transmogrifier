@@ -43,6 +43,7 @@ key where XML data will be or is stored.
 ... 
 ... [portletsimporter]
 ... blueprint = quintagroup.transmogrifier.portletsimporter
+... files-key = files
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.portlets', portlets)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.portlets') # doctest: +ELLIPSIS, +REPORT_NDIFF
@@ -70,5 +71,16 @@ key where XML data will be or is stored.
   </assignment>
 </portlets>
 <BLANKLINE>
->>> pprint.pprint(plone.updated)
-()
+{'_path': 'other-assignable',
+ 'files': {'portlets': {'data': ...
+                        'name': '.portlets.xml'}}}
+>>> 'habra-rss' in mapping
+True
+>>> mapping['habra-rss'].count
+20
+>>> mapping['habra-rss'].url
+u'http://habrahabr.ru/rss/'
+>>> mapping['habra-rss'].portlet_title
+u'Habrahabr RSS feed'
+>>> mapping['habra-rss'].timeout
+120

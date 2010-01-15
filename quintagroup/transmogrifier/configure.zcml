@@ -135,6 +135,8 @@
         name="quintagroup.transmogrifier.portletsimporter"
         />
 
+    <adapter factory=".portlets.PortletAssignmentExportImportHandler" />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

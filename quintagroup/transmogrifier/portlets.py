@@ -1,13 +1,18 @@
 from xml.dom import minidom
 
 from zope.interface import classProvides, implements, providedBy
-from zope.component import getUtilitiesFor, queryMultiAdapter
+from zope.component import getUtilitiesFor, queryMultiAdapter, getUtility, \
+    getMultiAdapter, adapts
+from zope.component.interfaces import IFactory
+from zope.app.container.interfaces import INameChooser
 
 from plone.portlets.interfaces import ILocalPortletAssignable, IPortletManager,\
-    IPortletAssignmentMapping
+    IPortletAssignmentMapping, IPortletAssignment
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.app.portlets.interfaces import IPortletTypeInterface
 from plone.app.portlets.exportimport.interfaces import IPortletAssignmentExportImportHandler
+from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentExportImportHandler
+from plone.app.portlets.interfaces import IPortletTypeInterface
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
@@ -119,15 +124,63 @@ class PortletsImporterSection(object):
             if obj is None:         # path doesn't exist
                 yield item; continue
 
-            #if ILocalPortletAssignable.providedBy(obj):
-                #data = None
-                #data = item[fileskey]['portlets']['data']
-                #doc = minidom.parseString(data)
-                #root = doc.documentElement
-                #children = [k for k in root.childNodes]
-                #for child in children:
-                    #if child.nodeName != 'assignment':
-                        #continue
-                    #self.importPortlet(child)
+            if ILocalPortletAssignable.providedBy(obj):
+                data = None
+                data = item[fileskey]['portlets']['data']
+                doc = minidom.parseString(data)
+                root = doc.documentElement
+                for elem in root.childNodes:
+                    if elem.nodeName == 'assignment':
+                        self.importAssignment(obj, elem)
+                    #elif elem.nodeName == 'blacklist':
+                        #self.importBlacklist(obj, elem)
 
             yield item
+
+    def importAssignment(self, obj, node):
+        """ Import an assignment from a node
+        """
+        # 1. Determine the assignment mapping and the name
+        manager_name = node.getAttribute('manager')
+        category = node.getAttribute('category')
+
+        manager = getUtility(IPortletManager, manager_name)
+        mapping = getMultiAdapter((obj, manager), IPortletAssignmentMapping)
+
+        # 2. Either find or create the assignment
+        assignment = None
+        name = node.getAttribute('name')
+        if name:
+            assignment = mapping.get(name, None)
+
+        type_ = node.getAttribute('type')
+
+        if assignment is None:
+            portlet_factory = getUtility(IFactory, name=type_)
+            assignment = portlet_factory()
+
+            if not name:
+                chooser = INameChooser(mapping)
+                name = chooser.chooseName(None, assignment)
+
+            mapping[name] = assignment
+
+        # aq-wrap it so that complex fields will work
+        assignment = assignment.__of__(obj)
+
+        # 3. Use an adapter to update the portlet settings
+        portlet_interface = getUtility(IPortletTypeInterface, name=type_)
+        assignment_handler = IPortletAssignmentExportImportHandler(assignment)
+        assignment_handler.import_assignment(portlet_interface, node)
+
+class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImportHandler):
+    """ This adapter is needed because original fails to handle text from 
+        pretty printed XML file.
+    """
+    adapts(IPortletAssignment)
+
+    def extract_text(self, node):
+        text = super(PortletAssignmentExportImportHandler, self).extract_text(node)
+        # strip text to remove newlines and space character from the beginning 
+        # and the end
+        return text.strip()

@@ -1054,10 +1054,6 @@ def portletsSetUp(test):
         def getPhysicalPath(self):
             return [''] + self._last_path.split('/')
 
-        updated = ()
-        def _updateProperty(self, id, value):
-            self.updated += ((self._last_path, id, value))
-
     portal = MockPortal()
     test.globs['plone'] = portal
     test.globs['transmogrifier'].context = test.globs['plone']
@@ -1073,6 +1069,29 @@ def portletsSetUp(test):
                 dict(_path='not/existing/bar'),
                 dict(_path='spam/eggs/notassignable'),
                 dict(_path='assignable'),
+                dict(_path='other-assignable', 
+                    files=dict(portlets=dict(
+                        name='.portlets.xml',
+                        data="""<?xml version="1.0" encoding="utf-8"?>
+<portlets>
+  <assignment category="context" key="/other-assignable" manager="plone.leftcolumn" name="habra-rss" type="portlets.rss">
+    <property name="count">
+      20
+    </property>
+    <property name="url">
+      http://habrahabr.ru/rss/
+    </property>
+    <property name="portlet_title">
+      Habrahabr RSS feed
+    </property>
+    <property name="timeout">
+      120
+    </property>
+  </assignment>
+</portlets>
+""")
+                    )
+                )
             )
 
     provideUtility(PortletsSource,
@@ -1099,6 +1118,7 @@ def portletsSetUp(test):
     provideUtility(manager, IPortletManager, name='plone.leftcolumn')
     provideAdapter(localPortletAssignmentMappingAdapter)
     mapping = getMultiAdapter((portal, manager), IPortletAssignmentMapping)
+    test.globs['mapping'] = mapping
 
     # register portlet (this is what plone:portlet zcml directive does)
     PORTLET_NAME = 'portlets.rss'
@@ -1131,10 +1151,6 @@ def portletsSetUp(test):
         field = field.bind(assignment)
         field.validate(v)
         field.set(assignment, v)
-
-    # register adapter for portlet assignment export/import
-    from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentExportImportHandler
-    provideAdapter(PropertyPortletAssignmentExportImportHandler)
 
 def test_suite():
     import sys

@@ -1,2 +1,2 @@
 recursive-include quintagroup *
-recursive-exclude *.py[co] *.mo
+recursive-exclude quintagroup *.py[co]

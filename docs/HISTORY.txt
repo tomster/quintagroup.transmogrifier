@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.3 (Unreleased)
+----------------
+
+ - added sections for export/import of portlet assignments [koval]
 
 0.2 (2010-01-04)
 ----------------

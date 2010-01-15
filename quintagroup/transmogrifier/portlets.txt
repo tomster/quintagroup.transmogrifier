@@ -1,0 +1,74 @@
+Portlets exporter and importer sections
+=======================================
+
+Portlets exporter and importer sections are used to migrate Plone 3 contextual 
+portlet assignments and blacklist settings.
+The portlets exporter section blueprint name is
+``quintagroup.transmogrifier.portletsexporter`` and importer section blueprint
+name is ``quintagroup.transmogrifier.portletsimporter``.
+
+Portlet assignments and blacklists are stored in XML format. Both sections need 
+relative path to the object with portlets assigned and importer also needs XML 
+data for updating them.
+
+Both sections has ``path-key`` option which specifies key in item where path to
+object is stored (``_path`` is default) and ``files-key`` option that gives
+key where XML data will be or is stored.
+
+>>> import pprint
+>>> portlets = """
+... [transmogrifier]
+... pipeline =
+...     portletssource
+...     portletsexporter
+...     printer
+...     dataprinter
+...     portletsimporter
+...     
+... [portletssource]
+... blueprint = quintagroup.transmogrifier.tests.portletssource
+... 
+... [portletsexporter]
+... blueprint = quintagroup.transmogrifier.portletsexporter
+... 
+... [printer]
+... blueprint = collective.transmogrifier.sections.tests.pprinter
+... 
+... [dataprinter]
+... blueprint = quintagroup.transmogrifier.tests.dataprinter
+... print = 
+...     _files
+...     portlets
+...     data
+... 
+... [portletsimporter]
+... blueprint = quintagroup.transmogrifier.portletsimporter
+... """
+>>> registerConfig(u'quintagroup.transmogrifier.tests.portlets', portlets)
+>>> transmogrifier(u'quintagroup.transmogrifier.tests.portlets') # doctest: +ELLIPSIS, +REPORT_NDIFF
+{}
+{'_path': 'not/existing/bar'}
+{'_path': 'spam/eggs/notassignable'}
+{'_files': {'portlets': {'data': ...
+                         'name': '.portlets.xml'}},
+ '_path': 'assignable'}
+<?xml version="1.0" encoding="utf-8"?>
+<portlets>
+  <assignment category="context" key="/assignable" manager="plone.leftcolumn" name="rss" type="portlets.rss">
+    <property name="count">
+      10
+    </property>
+    <property name="url">
+      http://sumno.com/feeds/main-page/
+    </property>
+    <property name="portlet_title">
+      RSS feed
+    </property>
+    <property name="timeout">
+      60
+    </property>
+  </assignment>
+</portlets>
+<BLANKLINE>
+>>> pprint.pprint(plone.updated)
+()

@@ -125,6 +125,16 @@
         name="quintagroup.transmogrifier.interfacesimporter"
         />
 
+    <utility
+        component=".portlets.PortletsExporterSection"
+        name="quintagroup.transmogrifier.portletsexporter"
+        />
+
+    <utility
+        component=".portlets.PortletsImporterSection"
+        name="quintagroup.transmogrifier.portletsimporter"
+        />
+
     <transmogrifier:registerConfig
         name="export"
         title="Export pipeline configuration"

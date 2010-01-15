@@ -56,7 +56,7 @@ def sectionsSetUp(test):
     zcml.load_config('configure.zcml', quintagroup.transmogrifier)
 
     from Products.CMFCore import utils
-    def getToolByName(context, tool_id):
+    def getToolByName(context, tool_id, default=None):
         return context
     utils.getToolByName = getToolByName
 
@@ -1025,6 +1025,116 @@ def interfaceManagerSetUp(test):
     provideUtility(InterfaceManagerSource,
         name=u'quintagroup.transmogrifier.tests.interfacemanagersource')
 
+def portletsSetUp(test):
+    sectionsSetUp(test)
+
+    from zope.interface import Interface
+    from zope.annotation.interfaces import IAttributeAnnotatable
+    from plone.portlets.interfaces import ILocalPortletAssignable
+
+    # this bases class adds __of__ method
+    from Acquisition import Implicit
+
+    class MockPortal(Implicit):
+        implements(IAttributeAnnotatable, ILocalPortletAssignable)
+
+        _last_path = None
+        def unrestrictedTraverse(self, path, default):
+            if path[0] == '/':
+                return default # path is absolute
+            if isinstance(path, unicode):
+                return default
+            if path == 'not/existing/bar':
+                return default
+            if path.endswith('/notassignable'):
+                return object()
+            self._last_path = path
+            return self
+
+        def getPhysicalPath(self):
+            return [''] + self._last_path.split('/')
+
+        updated = ()
+        def _updateProperty(self, id, value):
+            self.updated += ((self._last_path, id, value))
+
+    portal = MockPortal()
+    test.globs['plone'] = portal
+    test.globs['transmogrifier'].context = test.globs['plone']
+
+    class PortletsSource(SampleSource):
+        classProvides(ISectionBlueprint)
+        implements(ISection)
+
+        def __init__(self, *args, **kw):
+            super(PortletsSource, self).__init__(*args, **kw)
+            self.sample = (
+                dict(),
+                dict(_path='not/existing/bar'),
+                dict(_path='spam/eggs/notassignable'),
+                dict(_path='assignable'),
+            )
+
+    provideUtility(PortletsSource,
+        name=u'quintagroup.transmogrifier.tests.portletssource')
+
+    # prepare the one portlet for testing
+    from zope.interface import alsoProvides
+    from zope.component import getUtility, getMultiAdapter
+    from zope.component.interfaces import IFactory
+    from zope.component.factory import Factory
+
+    from plone.portlets.manager import PortletManager
+    from plone.portlets.interfaces import IPortletManager, IPortletType, \
+        IPortletAssignmentMapping
+    from plone.portlets.registration import PortletType
+
+    from plone.app.portlets.assignable import localPortletAssignmentMappingAdapter
+    from plone.app.portlets.interfaces import IPortletTypeInterface
+    # from plone.app.portlets.browser.interfaces import IPortletAdding
+    from plone.app.portlets.portlets.rss import IRSSPortlet, Assignment #, Renderer, AddForm, EditForm
+
+    # register portlet manager and assignment mapping adapter
+    manager = PortletManager()
+    provideUtility(manager, IPortletManager, name='plone.leftcolumn')
+    provideAdapter(localPortletAssignmentMappingAdapter)
+    mapping = getMultiAdapter((portal, manager), IPortletAssignmentMapping)
+
+    # register portlet (this is what plone:portlet zcml directive does)
+    PORTLET_NAME = 'portlets.rss'
+    alsoProvides(IRSSPortlet, IPortletTypeInterface)
+    provideUtility(provides=IPortletTypeInterface, name=PORTLET_NAME, component=IRSSPortlet)
+    provideUtility(provides=IFactory, name=PORTLET_NAME, component=Factory(Assignment))
+
+    # register a portlet type (this is what <portlet /> element in portlets.xml
+    # does)
+    portlet = PortletType()
+    portlet.title = 'RSS Feed'
+    portlet.description = 'A portlet which can receive and render an RSS feed.'
+    portlet.addview = PORTLET_NAME
+    portlet.for_ = [Interface]
+    provideUtility(component=portlet, provides=IPortletType, 
+        name=PORTLET_NAME)
+
+    # add a portlet and configure it (this is done on @@manage-portlets view)
+    assignment = getUtility(IFactory, name=PORTLET_NAME)()
+    mapping['rss'] = assignment
+    portlet_interface = getUtility(IPortletTypeInterface, name=PORTLET_NAME)
+    data = {
+        'portlet_title': u'RSS feed',
+        'count': 10,
+        'url': u'http://sumno.com/feeds/main-page/',
+        'timeout': 60
+    }
+    for k, v in data.items():
+        field = portlet_interface.get(k)
+        field = field.bind(assignment)
+        field.validate(v)
+        field.set(assignment, v)
+
+    # register adapter for portlet assignment export/import
+    from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentExportImportHandler
+    provideAdapter(PropertyPortletAssignmentExportImportHandler)
 
 def test_suite():
     import sys
@@ -1072,5 +1182,8 @@ def test_suite():
         doctest.DocFileSuite(
             'interfacemanager.txt',
             setUp=interfaceManagerSetUp, tearDown=tearDown),
+        doctest.DocFileSuite(
+            'portlets.txt',
+            setUp=portletsSetUp, tearDown=tearDown),
     ))
     return suite

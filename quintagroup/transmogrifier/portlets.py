@@ -37,7 +37,7 @@ class PortletsExporterSection(object):
     def __iter__(self):
         self.portlet_schemata = dict([(iface, name,) for name, iface in 
             getUtilitiesFor(IPortletTypeInterface)])
-        self.portlet_managers = getUtilitiesFor(IPortletManager)
+        self.portlet_managers = list(getUtilitiesFor(IPortletManager))
 
         for item in self.previous:
             pathkey = self.pathkey(*item.keys())[0]

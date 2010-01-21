@@ -137,6 +137,7 @@ class PortletsImporterSection(object):
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
+        self.purge = options.get('purge', 'false').strip().lower() == 'true' and True or False
 
     def __iter__(self):
 
@@ -153,6 +154,14 @@ class PortletsImporterSection(object):
             obj = self.context.unrestrictedTraverse(path, None)
             if obj is None:         # path doesn't exist
                 yield item; continue
+
+            # Purge assignments if 'purge' option set to true
+            if self.purge:
+                for name, portletManager in getUtilitiesFor(IPortletManager):
+                    assignable = queryMultiAdapter((obj, portletManager), IPortletAssignmentMapping)
+                    if assignable is not None:
+                        for key in list(assignable.keys()):
+                            del assignable[key]
 
             if ILocalPortletAssignable.providedBy(obj):
                 data = None

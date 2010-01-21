@@ -113,7 +113,6 @@ class PortletsExporterSection(object):
                 child = self.doc.createElement('blacklist')
                 child.setAttribute('manager', manager_name)
                 child.setAttribute('category', category)
-                child.setAttribute('location', '/'.join(obj.getPhysicalPath()))
             
                 status = assignable.getBlacklistStatus(category)
                 if status == True:
@@ -163,8 +162,8 @@ class PortletsImporterSection(object):
                 for elem in root.childNodes:
                     if elem.nodeName == 'assignment':
                         self.importAssignment(obj, elem)
-                    #elif elem.nodeName == 'blacklist':
-                        #self.importBlacklist(obj, elem)
+                    elif elem.nodeName == 'blacklist':
+                        self.importBlacklist(obj, elem)
 
             yield item
 
@@ -203,6 +202,25 @@ class PortletsImporterSection(object):
         portlet_interface = getUtility(IPortletTypeInterface, name=type_)
         assignment_handler = IPortletAssignmentExportImportHandler(assignment)
         assignment_handler.import_assignment(portlet_interface, node)
+
+    def importBlacklist(self, obj, node):
+        """ Import a blacklist from a node
+        """
+        manager = node.getAttribute('manager')
+        category = node.getAttribute('category')
+        status = node.getAttribute('status')
+        
+        manager = getUtility(IPortletManager, name=manager)
+        
+        assignable = queryMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
+        
+        if status.lower() == 'block':
+            assignable.setBlacklistStatus(category, True)
+        elif status.lower() == 'show':
+            assignable.setBlacklistStatus(category, False)
+        elif status.lower() == 'acquire':
+            assignable.setBlacklistStatus(category, None)
+
 
 logger = logging.getLogger('quintagroup.transmogrifier.portletsimporter')
 

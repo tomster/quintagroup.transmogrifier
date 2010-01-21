@@ -11,8 +11,9 @@ from zope.schema.interfaces import ICollection
 
 
 from plone.portlets.interfaces import ILocalPortletAssignable, IPortletManager,\
-    IPortletAssignmentMapping, IPortletAssignment
-from plone.portlets.constants import CONTEXT_CATEGORY
+    IPortletAssignmentMapping, IPortletAssignment, ILocalPortletAssignmentManager
+from plone.portlets.constants import USER_CATEGORY, GROUP_CATEGORY, \
+    CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY
 from plone.app.portlets.interfaces import IPortletTypeInterface
 from plone.app.portlets.exportimport.interfaces import IPortletAssignmentExportImportHandler
 from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentExportImportHandler
@@ -57,8 +58,8 @@ class PortletsExporterSection(object):
 
                 for elem in self.exportAssignments(obj):
                     root.appendChild(elem)
-                #for elem in self.exportBlacklists(obj)
-                    #root.appendChild(elem)
+                for elem in self.exportBlacklists(obj):
+                    root.appendChild(elem)
                 if root.hasChildNodes():
                     self.doc.appendChild(root)
                     data = self.doc.toprettyxml(indent='  ', encoding='utf-8')
@@ -101,6 +102,31 @@ class PortletsExporterSection(object):
                     assignments.append(child)
 
         return assignments
+
+    def exportBlacklists(self, obj):
+        assignments = []
+        for manager_name, manager in self.portlet_managers:
+            assignable = queryMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
+            if assignable is None:
+                continue
+            for category in (USER_CATEGORY, GROUP_CATEGORY, CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY,):
+                child = self.doc.createElement('blacklist')
+                child.setAttribute('manager', manager_name)
+                child.setAttribute('category', category)
+                child.setAttribute('location', '/'.join(obj.getPhysicalPath()))
+            
+                status = assignable.getBlacklistStatus(category)
+                if status == True:
+                    child.setAttribute('status', u'block')
+                elif status == False:
+                    child.setAttribute('status', u'show')
+                else:
+                    child.setAttribute('status', u'acquire')
+                    
+                assignments.append(child)
+
+        return assignments
+
 
 class PortletsImporterSection(object):
     classProvides(ISectionBlueprint)

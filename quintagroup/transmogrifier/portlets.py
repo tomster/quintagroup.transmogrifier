@@ -11,9 +11,8 @@ from zope.schema.interfaces import ICollection
 
 
 from plone.portlets.interfaces import ILocalPortletAssignable, IPortletManager,\
-    IPortletAssignmentMapping, IPortletAssignment, ILocalPortletAssignmentManager
-from plone.portlets.constants import USER_CATEGORY, GROUP_CATEGORY, \
-    CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY
+    IPortletAssignmentMapping, IPortletAssignment
+from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.app.portlets.interfaces import IPortletTypeInterface
 from plone.app.portlets.exportimport.interfaces import IPortletAssignmentExportImportHandler
 from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentExportImportHandler
@@ -58,8 +57,8 @@ class PortletsExporterSection(object):
 
                 for elem in self.exportAssignments(obj):
                     root.appendChild(elem)
-                for elem in self.exportBlacklists(obj):
-                    root.appendChild(elem)
+                #for elem in self.exportBlacklists(obj)
+                    #root.appendChild(elem)
                 if root.hasChildNodes():
                     self.doc.appendChild(root)
                     data = self.doc.toprettyxml(indent='  ', encoding='utf-8')
@@ -77,6 +76,9 @@ class PortletsExporterSection(object):
         assignments = []
         for manager_name, manager in self.portlet_managers:
             mapping = queryMultiAdapter((obj, manager), IPortletAssignmentMapping)
+            if mapping is None:
+                continue
+
             mapping = mapping.__of__(obj)
 
             for name, assignment in mapping.items():
@@ -103,30 +105,6 @@ class PortletsExporterSection(object):
 
         return assignments
 
-    def exportBlacklists(self, obj):
-        assignments = []
-        for manager_name, manager in self.portlet_managers:
-            assignable = queryMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
-            if assignable is None:
-                continue
-            for category in (USER_CATEGORY, GROUP_CATEGORY, CONTENT_TYPE_CATEGORY, CONTEXT_CATEGORY,):
-                child = self.doc.createElement('blacklist')
-                child.setAttribute('manager', manager_name)
-                child.setAttribute('category', category)
-            
-                status = assignable.getBlacklistStatus(category)
-                if status == True:
-                    child.setAttribute('status', u'block')
-                elif status == False:
-                    child.setAttribute('status', u'show')
-                else:
-                    child.setAttribute('status', u'acquire')
-                    
-                assignments.append(child)
-
-        return assignments
-
-
 class PortletsImporterSection(object):
     classProvides(ISectionBlueprint)
     implements(ISection)
@@ -137,7 +115,6 @@ class PortletsImporterSection(object):
 
         self.pathkey = defaultMatcher(options, 'path-key', name, 'path')
         self.fileskey = defaultMatcher(options, 'files-key', name, 'files')
-        self.purge = options.get('purge', 'false').strip().lower() == 'true' and True or False
 
     def __iter__(self):
 
@@ -155,14 +132,6 @@ class PortletsImporterSection(object):
             if obj is None:         # path doesn't exist
                 yield item; continue
 
-            # Purge assignments if 'purge' option set to true
-            if self.purge:
-                for name, portletManager in getUtilitiesFor(IPortletManager):
-                    assignable = queryMultiAdapter((obj, portletManager), IPortletAssignmentMapping)
-                    if assignable is not None:
-                        for key in list(assignable.keys()):
-                            del assignable[key]
-
             if ILocalPortletAssignable.providedBy(obj):
                 data = None
                 data = item[fileskey]['portlets']['data']
@@ -171,8 +140,8 @@ class PortletsImporterSection(object):
                 for elem in root.childNodes:
                     if elem.nodeName == 'assignment':
                         self.importAssignment(obj, elem)
-                    elif elem.nodeName == 'blacklist':
-                        self.importBlacklist(obj, elem)
+                    #elif elem.nodeName == 'blacklist':
+                        #self.importBlacklist(obj, elem)
 
             yield item
 
@@ -185,6 +154,8 @@ class PortletsImporterSection(object):
 
         manager = getUtility(IPortletManager, manager_name)
         mapping = getMultiAdapter((obj, manager), IPortletAssignmentMapping)
+        if mapping is None:
+            return
 
         # 2. Either find or create the assignment
         assignment = None
@@ -211,25 +182,6 @@ class PortletsImporterSection(object):
         portlet_interface = getUtility(IPortletTypeInterface, name=type_)
         assignment_handler = IPortletAssignmentExportImportHandler(assignment)
         assignment_handler.import_assignment(portlet_interface, node)
-
-    def importBlacklist(self, obj, node):
-        """ Import a blacklist from a node
-        """
-        manager = node.getAttribute('manager')
-        category = node.getAttribute('category')
-        status = node.getAttribute('status')
-        
-        manager = getUtility(IPortletManager, name=manager)
-        
-        assignable = queryMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
-        
-        if status.lower() == 'block':
-            assignable.setBlacklistStatus(category, True)
-        elif status.lower() == 'show':
-            assignable.setBlacklistStatus(category, False)
-        elif status.lower() == 'acquire':
-            assignable.setBlacklistStatus(category, None)
-
 
 logger = logging.getLogger('quintagroup.transmogrifier.portletsimporter')
 

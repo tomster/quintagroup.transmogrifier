@@ -71,9 +71,30 @@ key where XML data will be or is stored.
   </assignment>
 </portlets>
 <BLANKLINE>
-{'_path': 'other-assignable',
+{'_files': {'portlets': {'data': ...
+			 'name': '.portlets.xml'}},
+ '_path': 'other-assignable',
  'files': {'portlets': {'data': ...
-                        'name': '.portlets.xml'}}}
+			'name': '.portlets.xml'}}}
+<?xml version="1.0" encoding="utf-8"?>
+<portlets>
+  <assignment category="context" key="/other-assignable" manager="plone.leftcolumn" name="rss" type="portlets.rss">
+    <property name="count">
+      10
+    </property>
+    <property name="url">
+      http://sumno.com/feeds/main-page/
+    </property>
+    <property name="portlet_title">
+      RSS feed
+    </property>
+    <property name="timeout">
+      60
+    </property>
+  </assignment>
+</portlets>
+<BLANKLINE>
+
 >>> 'habra-rss' in mapping
 True
 >>> mapping['habra-rss'].count

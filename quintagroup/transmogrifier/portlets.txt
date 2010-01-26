@@ -69,6 +69,10 @@ key where XML data will be or is stored.
       60
     </property>
   </assignment>
+  <blacklist category="user" manager="plone.leftcolumn" status="block"/>
+  <blacklist category="group" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="content_type" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="context" manager="plone.leftcolumn" status="acquire"/>
 </portlets>
 <BLANKLINE>
 {'_files': {'portlets': {'data': ...
@@ -92,6 +96,10 @@ key where XML data will be or is stored.
       60
     </property>
   </assignment>
+  <blacklist category="user" manager="plone.leftcolumn" status="block"/>
+  <blacklist category="group" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="content_type" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="context" manager="plone.leftcolumn" status="acquire"/>
 </portlets>
 <BLANKLINE>
 
@@ -105,3 +113,13 @@ u'http://habrahabr.ru/rss/'
 u'Habrahabr RSS feed'
 >>> mapping['habra-rss'].timeout
 120
+>>> 'rss' in mapping
+True
+>>> mapping['rss'].count
+10
+>>> mapping['rss'].url
+u'http://sumno.com/feeds/main-page/'
+>>> mapping['rss'].portlet_title
+u'RSS feed'
+>>> mapping['rss'].timeout
+60

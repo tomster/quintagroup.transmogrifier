@@ -1088,6 +1088,10 @@ def portletsSetUp(test):
       120
     </property>
   </assignment>
+  <blacklist category="user" manager="plone.leftcolumn" status="block"/>
+  <blacklist category="group" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="content_type" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="context" manager="plone.leftcolumn" status="acquire"/>
 </portlets>
 """)
                     )
@@ -1109,7 +1113,10 @@ def portletsSetUp(test):
     from plone.portlets.registration import PortletType
 
     from plone.app.portlets.assignable import localPortletAssignmentMappingAdapter
+    from plone.portlets.assignable import LocalPortletAssignmentManager
     from plone.app.portlets.interfaces import IPortletTypeInterface
+    from plone.portlets.interfaces import  ILocalPortletAssignmentManager
+    from plone.portlets.constants import USER_CATEGORY
     # from plone.app.portlets.browser.interfaces import IPortletAdding
     from plone.app.portlets.portlets.rss import IRSSPortlet, Assignment #, Renderer, AddForm, EditForm
 
@@ -1117,8 +1124,11 @@ def portletsSetUp(test):
     manager = PortletManager()
     provideUtility(manager, IPortletManager, name='plone.leftcolumn')
     provideAdapter(localPortletAssignmentMappingAdapter)
+    provideAdapter(LocalPortletAssignmentManager)
     mapping = getMultiAdapter((portal, manager), IPortletAssignmentMapping)
+    assignable = getMultiAdapter((portal, manager), ILocalPortletAssignmentManager)
     test.globs['mapping'] = mapping
+    test.globs['assignable'] = assignable
 
     # register portlet (this is what plone:portlet zcml directive does)
     PORTLET_NAME = 'portlets.rss'
@@ -1151,6 +1161,8 @@ def portletsSetUp(test):
         field = field.bind(assignment)
         field.validate(v)
         field.set(assignment, v)
+    # set blacklists for user category to 'block'
+    assignable.setBlacklistStatus(USER_CATEGORY, True)
 
 def test_suite():
     import sys

@@ -1101,6 +1101,45 @@ def portletsSetUp(test):
     provideUtility(PortletsSource,
         name=u'quintagroup.transmogrifier.tests.portletssource')
 
+    class PortletsSource2(SampleSource):
+        classProvides(ISectionBlueprint)
+        implements(ISection)
+
+        def __init__(self, *args, **kw):
+            super(PortletsSource2, self).__init__(*args, **kw)
+            self.sample = (
+                dict(),
+                dict(_path='other-assignable',
+                    files=dict(portlets=dict(
+                        name='.portlets.xml',
+                        data="""<?xml version="1.0" encoding="utf-8"?>
+<portlets>
+  <assignment category="context" key="/other-assignable" manager="plone.leftcolumn" name="sumno-rss-2" type="portlets.rss">
+    <property name="count">
+      30
+    </property>
+    <property name="url">
+      http://sumno.com/rss
+    </property>
+    <property name="portlet_title">
+      Sumno RSS feed
+    </property>
+    <property name="timeout">
+      360
+    </property>
+  </assignment>
+  <blacklist category="user" manager="plone.leftcolumn" status="block"/>
+  <blacklist category="group" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="content_type" manager="plone.leftcolumn" status="acquire"/>
+  <blacklist category="context" manager="plone.leftcolumn" status="acquire"/>
+</portlets>
+""")
+                    )
+                )
+            )
+    provideUtility(PortletsSource2,
+       name=u'quintagroup.transmogrifier.tests.portletssource2')
+
     # prepare the one portlet for testing
     from zope.interface import alsoProvides
     from zope.component import getUtility, getMultiAdapter

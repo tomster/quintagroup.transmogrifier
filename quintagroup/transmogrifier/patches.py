@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from tarfile import TarInfo, DIRTYPE
 from StringIO import StringIO
@@ -129,5 +130,6 @@ def frombuf(cls, buf):
         tarinfo.name += "/"
     return tarinfo
 
-frombuf = classmethod(frombuf)
-TarInfo.frombuf = frombuf
+if sys.version_info[:2] == (2,4):
+    frombuf = classmethod(frombuf)
+    TarInfo.frombuf = frombuf

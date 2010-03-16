@@ -36,7 +36,7 @@ class ATAttribute(base.ATAttribute):
             # try to get 'utf-8' encoded string
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
-            elif IBaseUnit.isImplementedBy(value):
+            elif IBaseUnit.providedBy(value):
                 value = value.getRaw(encoding='utf-8')
             else:
                 value = str(value)

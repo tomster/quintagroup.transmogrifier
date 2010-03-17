@@ -3,7 +3,7 @@
     Control Characters for you
 """
 
-from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces import IBaseUnit
 
 from Products.Marshall.namespaces import dcns as base
 from Products.Marshall.namespaces.dcns import normalizer

@@ -3,8 +3,8 @@
     Control Characters for you
 """
 
-from Products.Archetypes.interfaces.base import IBaseUnit
-from Products.Archetypes.interfaces.field import IObjectField
+from Products.Archetypes.interfaces import IBaseUnit
+from Products.Archetypes.interfaces import IObjectField
 
 from Products.Marshall import config
 from Products.Marshall.handlers.atxml import XmlNamespace

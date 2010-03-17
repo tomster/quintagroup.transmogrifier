@@ -29,18 +29,19 @@ is going into pipeline only if the condition, which is also a TALES is true.
 >>> registerConfig(u'quintagroup.transmogrifier.tests.sitewalker',
 ...                sitewalker)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.sitewalker')
-{'_entries': (('document1', 'Document'),
-              ('folder1', 'Folder'),
-              ('document3', 'Document')),
- '_path': '',
- '_type': 'MockPortal'}
-{'_type': 'Document', '_path': 'document1'}
-{'_entries': (('folder2', 'Folder'), ('document2', 'Document')),
- '_path': 'folder1',
- '_type': 'Folder'}
-{'_type': 'Folder', '_path': 'folder1/folder2'}
-{'_type': 'Document', '_path': 'folder1/document2'}
-{'_type': 'Document', '_path': 'document3'}
+[('_entries',
+  (('document1', 'Document'),
+   ('folder1', 'Folder'),
+   ('document3', 'Document'))),
+ ('_path', ''),
+ ('_type', 'MockPortal')]
+[('_path', 'document1'), ('_type', 'Document')]
+[('_entries', (('folder2', 'Folder'), ('document2', 'Document'))),
+ ('_path', 'folder1'),
+ ('_type', 'Folder')]
+[('_path', 'folder1/folder2'), ('_type', 'Folder')]
+[('_path', 'folder1/document2'), ('_type', 'Document')]
+[('_path', 'document3'), ('_type', 'Document')]
 
 
 The ``condition`` expression has an access to the following:

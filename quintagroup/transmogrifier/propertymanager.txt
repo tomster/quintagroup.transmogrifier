@@ -55,13 +55,14 @@ these lists are excluded.
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.propertymanager', propertymanager)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.propertymanager') # doctest: +ELLIPSIS, +REPORT_NDIFF
-{}
-{'_path': 'not/existing/bar'}
-{'_path': 'spam/eggs/notatcontent'}
-{'_excluded_properties': ('encoding',),
- '_files': {'propertymanager': {'data': ...
-                                'name': '.properties.xml'}},
- '_path': 'spam/eggs/foo'}
+[]
+[('_path', 'not/existing/bar')]
+[('_path', 'spam/eggs/notatcontent')]
+[('_excluded_properties', ('encoding',)),
+ ('_files',
+  {'propertymanager': {'data': '<?xml version="1.0" encoding="utf-8"?>\n<properties>\n  <property name="description">\n    value\n  </property>\n  <property name="author">\n    value\n  </property>\n</properties>\n',
+                       'name': '.properties.xml'}}),
+ ('_path', 'spam/eggs/foo')]
 <?xml version="1.0" encoding="utf-8"?>
 <properties>
   <property name="description">

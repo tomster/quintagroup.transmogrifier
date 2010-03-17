@@ -44,13 +44,14 @@ key where XML data will be or is stored.
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.comments', comments)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.comments') # doctest: +ELLIPSIS, +REPORT_NDIFF
-{}
-{'_path': 'not/existing/bar'}
-{'_path': 'spam/eggs/notdiscussable'}
-{'_files': {'comments': {'data': ...
-                         'name': '.comments.xml'}},
- '_path': 'spam/eggs/foo'}
-...
+[]
+[('_path', 'not/existing/bar')]
+[('_path', 'spam/eggs/notdiscussable')]
+[('_files',
+  {'comments': {'data': ...
+                'name': '.comments.xml'}}),
+ ('_path', 'spam/eggs/foo')]
+<?xml version="1.0" encoding="utf-8"?>
 <discussion>
   <item id="1">
     <field name="Creator">
@@ -96,6 +97,7 @@ key where XML data will be or is stored.
   </item>
 </discussion>
 <BLANKLINE>
+
 >>> pprint.pprint(plone._container)
 {'1': <DicussionItem creator date None comment to content>,
  '2': <DicussionItem creator date 1 reply to first comment>,

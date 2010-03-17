@@ -59,12 +59,13 @@ way we prevent confusion with interfaces, implemented by class itself.
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.interfacemanager', interfacemanager)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.interfacemanager') # doctest: +ELLIPSIS, +REPORT_NDIFF
-{}
-{'_path': 'not/existing/bar'}
-{'_path': 'spam/eggs/notatcontent'}
-{'_files': {'interfaces': {'data': ...
-                           'name': '.interfaces.xml'}},
- '_path': 'spam/eggs/foo'}
+[]
+[('_path', 'not/existing/bar')]
+[('_path', 'spam/eggs/notatcontent')]
+[('_files',
+  {'interfaces': {'data': '<?xml version="1.0" encoding="utf-8"?>\n<interfaces>\n  <record>\n    zope.annotation.interfaces.IAttributeAnnotatable\n  </record>\n  <record>\n    zope.interface.Interface\n  </record>\n</interfaces>\n',
+                  'name': '.interfaces.xml'}}),
+ ('_path', 'spam/eggs/foo')]
 <?xml version="1.0" encoding="utf-8"?>
 <interfaces>
   <record>

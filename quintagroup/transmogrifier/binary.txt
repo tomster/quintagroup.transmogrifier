@@ -51,16 +51,17 @@ this or another binary field only if condition expression evaluates to true.
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.marshall', binary)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.marshall') # doctest: +REPORT_NDIFF, +ELLIPSIS
-{}
-{'_path': 'not/existing/bar'}
-{'_path': 'spam/eggs/notatcontent'}
-{'_excluded_fields': ['image', 'file'],
- '_files': {'archive.tar.gz': {'content_type': 'application/x-tar',
-                               'data': 'binary data',
-                               'name': 'archive.tar.gz'},
-            'file-fields': {'data': ...,
-                            'name': '.file-fields.xml'}},
- '_path': 'spam/eggs/foo'}
+[]
+[('_path', 'not/existing/bar')]
+[('_path', 'spam/eggs/notatcontent')]
+[('_excluded_fields', ['image', 'file']),
+ ('_files',
+  {'archive.tar.gz': {'content_type': 'application/x-tar',
+                      'data': 'binary data',
+                      'name': 'archive.tar.gz'},
+   'file-fields': {'data': ...
+                   'name': '.file-fields.xml'}}),
+ ('_path', 'spam/eggs/foo')]
 <?xml version="1.0" encoding="utf-8"?>
 <manifest>
   <field name="file">
@@ -73,6 +74,7 @@ this or another binary field only if condition expression evaluates to true.
   </field>
 </manifest>
 <BLANKLINE>
+
 >>> pprint.pprint(plone.updated)
 ('archive.tar.gz', 'application/x-tar', 'binary data')
 

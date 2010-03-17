@@ -49,7 +49,7 @@ class ATAttribute(base.ATAttribute):
                                                     'reference')
                     uid_node = dom.createElementNS(self.namespace.xmlns,
                                                     'uid')
-                    value = response.createTextNode(value)
+                    value = dom.createTextNode(value)
                     uid_node.append(value)
                     ref_node.append(uid_node)
                     node.append(ref_node)

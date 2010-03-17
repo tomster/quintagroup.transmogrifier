@@ -59,7 +59,7 @@ class MarshallerSection(object):
                     content_type, length, data = self.atxml.marshall(obj, atns_exclude=atns_exclude)
                 except ConflictError:
                     raise
-                except:
+                except Exception, exception:
                     data = None
 
                 if data or data is None:

@@ -2,6 +2,7 @@
     Archetypes Marshall namespace but which can safely handle
     Control Characters for you
 """
+import transaction
 
 from Products.Archetypes.interfaces import IBaseUnit
 from Products.Archetypes.interfaces import IObjectField

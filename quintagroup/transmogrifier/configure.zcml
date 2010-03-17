@@ -210,4 +210,10 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
 
+    <!-- Apply marker interface for Plone < 4 -->
+    <five:implements
+        class="Products.Archetypes.Field.ObjectField"
+        interface="Products.Archetypes.interfaces.IObjectField"
+        />
+
 </configure>

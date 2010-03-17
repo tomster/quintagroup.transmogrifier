@@ -5,7 +5,7 @@ This is a source section that returns items queried from catalog. The catalog
 source section blueprint name is ``quintagroup.transmogrifier.catalogsource``.
 
 Catalog source section has next options:
-  - ``path-key' (default ``_path``) - key where object path is stored
+  - ``path-key'`` (default ``_path``) - key where object path is stored
   - ``entries-key`` (default ``_entries``) - key where data for manifest section
      is stored (tuple of contained items)
 

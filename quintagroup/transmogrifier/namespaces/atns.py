@@ -4,6 +4,7 @@
 """
 
 from Products.Archetypes.interfaces.base import IBaseUnit
+from Products.Archetypes.interfaces.field import IObjectField
 
 from Products.Marshall import config
 from Products.Marshall.handlers.atxml import XmlNamespace
@@ -18,6 +19,7 @@ from quintagroup.transmogrifier.namespaces.util import has_ctrlchars
 
 
 class ATAttribute(base.ATAttribute):
+
 
     def serialize(self, dom, parent_node, instance, options={}):
         
@@ -62,6 +64,12 @@ class ATAttribute(base.ATAttribute):
             else:
                 value_node = dom.createTextNode(value)
                 node.appendChild(value_node)
+
+            field = instance.schema._fields[self.name]
+            if IObjectField.providedBy(field):
+                mime_attr = dom.createAttribute('mimetype')
+                mime_attr.value = field.getContentType(instance)
+                node.setAttributeNode(mime_attr)
         
             node.normalize()
             parent_node.appendChild(node)

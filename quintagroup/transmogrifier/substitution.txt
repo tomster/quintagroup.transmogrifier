@@ -31,7 +31,7 @@ Which key to use is determined by ``key`` option.
 ... """
 >>> registerConfig(u'quintagroup.transmogrifier.tests.substitution', substitution)
 >>> transmogrifier(u'quintagroup.transmogrifier.tests.substitution') # doctest: +ELLIPSIS, +REPORT_NDIFF
-{}
-{'_old_type': 'Blog', '_type': 'Weblog'}
-{'_old_type': 'PloneFormMailer', '_type': 'FormFolder'}
-{'_type': 'Document'}
+[]
+[('_old_type', 'Blog'), ('_type', 'Weblog')]
+[('_old_type', 'PloneFormMailer'), ('_type', 'FormFolder')]
+[('_type', 'Document')]

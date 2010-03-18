@@ -1,3 +1,5 @@
+import os
+import quintagroup
 from Products.Five.testbrowser import Browser
 from Products.PloneTestCase import ptc
 from quintagroup.transmogrifier import testing
@@ -10,6 +12,9 @@ class TransmogrifierTestCase(ptc.PloneTestCase):
     """ base class for integration tests """
 
     layer = testing.transmogrifier
+
+    data_path = os.path.join(quintagroup.transmogrifier.tests.__path__[0],
+        "data")
 
 
 class TransmogrifierFunctionalTestCase(ptc.FunctionalTestCase):

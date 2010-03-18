@@ -9,24 +9,6 @@ pipelines, that may be used to export/import Plone site content.
 It also overrides GenericSetup ``Content`` step so this package
 can be used out-the-box to migrate site content.
 
-Running test
-************
-
-In current state before running all test you need to go to
-collective.transmogrifier package and edit configure.zcml file, replacing
-
-::
-
-    <adapter factory=".transmogrifier.Transmogrifier" /> 
-
-line with
-
-::
-    <adapter 
-        factory=".transmogrifier.Transmogrifier" 
-        provides=".interfaces.ITransmogrifier" 
-        />
-
 Credits
 *******
 

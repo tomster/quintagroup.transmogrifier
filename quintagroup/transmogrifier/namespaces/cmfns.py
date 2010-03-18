@@ -3,7 +3,6 @@
     LocalRolesAttribute class. It's not working in Marshall Product.
 """
 
-from Products.Marshall import utils
 from Products.Marshall.namespaces import cmfns as base
 
 

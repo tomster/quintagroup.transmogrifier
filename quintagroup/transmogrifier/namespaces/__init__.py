@@ -1,6 +1,7 @@
 # import Products.Marshall namespaces to ensure it's registered
 # before we override it
 from Products.Marshall import namespaces
+namespaces # pyflakes
 from Products.Marshall.handlers.atxml import ATXMLMarshaller, XmlNamespace
 
 from atns import Archetypes

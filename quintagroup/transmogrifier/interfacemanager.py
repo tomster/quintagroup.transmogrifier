@@ -1,16 +1,12 @@
-import os.path
 from xml.dom import minidom
 
 from zope.interface import classProvides, implements
 from zope.interface import directlyProvidedBy, alsoProvides
-from zope.annotation.interfaces import IAnnotations
 
 from Products.CMFCore import utils
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
-
-from quintagroup.transmogrifier.logger import VALIDATIONKEY
 
 class InterfacesExporterSection(object):
     classProvides(ISectionBlueprint)
@@ -48,7 +44,7 @@ class InterfacesExporterSection(object):
             ifaces = self.getInterfaces(obj)
 
             if ifaces:
-                files = item.setdefault('_files', {})
+                item.setdefault('_files', {})
                 item[self.fileskey]['interfaces'] = {
                     'name': '.interfaces.xml',
                     'data': ifaces,
@@ -86,7 +82,7 @@ class InterfacesExporterSection(object):
 
         try:
             data = doc.toprettyxml(indent='  ', encoding='utf-8')
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError:
             # all comments are strings encoded in 'utf-8' and they will properly
             # saved in xml file, but if we explicitly give 'utf-8' encoding
             # UnicodeDecodeError will be raised when they have non-ascii chars

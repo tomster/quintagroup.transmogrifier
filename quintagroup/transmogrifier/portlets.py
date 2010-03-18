@@ -17,7 +17,6 @@ from plone.portlets.constants import USER_CATEGORY, GROUP_CATEGORY, \
 from plone.app.portlets.interfaces import IPortletTypeInterface
 from plone.app.portlets.exportimport.interfaces import IPortletAssignmentExportImportHandler
 from plone.app.portlets.exportimport.portlets import PropertyPortletAssignmentExportImportHandler
-from plone.app.portlets.interfaces import IPortletTypeInterface
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
 from collective.transmogrifier.utils import defaultMatcher
@@ -66,7 +65,7 @@ class PortletsExporterSection(object):
                     self.doc.unlink()
 
                 if data:
-                    files = item.setdefault(self.fileskey, {})
+                    item.setdefault(self.fileskey, {})
                     item[self.fileskey]['portlets'] = {
                         'name': '.portlets.xml',
                         'data': data,
@@ -184,7 +183,6 @@ class PortletsImporterSection(object):
         """
         # 1. Determine the assignment mapping and the name
         manager_name = node.getAttribute('manager')
-        category = node.getAttribute('category')
 
         manager = getUtility(IPortletManager, manager_name)
         mapping = getMultiAdapter((obj, manager), IPortletAssignmentMapping)
@@ -282,7 +280,7 @@ class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImport
 
         try:
             field.validate(value)
-        except ConstraintNotSatisfied, e:
+        except ConstraintNotSatisfied:
             logger.warning('"%s" value doesn\'t satisfy constaints for "%s:%s" field' % \
                 (value, self.assignment.__name__, field.__name__))
 

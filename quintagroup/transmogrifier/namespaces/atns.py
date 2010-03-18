@@ -8,12 +8,6 @@ from Products.Archetypes.interfaces import IBaseUnit
 from Products.Archetypes.interfaces import IObjectField
 
 from Products.Marshall import config
-from Products.Marshall.handlers.atxml import XmlNamespace
-from Products.Marshall.handlers.atxml import SchemaAttribute
-from Products.Marshall.handlers.atxml import getRegisteredNamespaces
-from Products.Marshall.exceptions import MarshallingException
-from Products.Marshall import utils
-
 from Products.Marshall.namespaces import atns as base
 
 from quintagroup.transmogrifier.namespaces.util import has_ctrlchars

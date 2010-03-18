@@ -31,7 +31,7 @@ class ManifestExporterSection(object):
             manifest = self.createManifest(item[entrieskey])
 
             if manifest:
-                files = item.setdefault('_files', {})
+                item.setdefault('_files', {})
                 item[self.fileskey]['manifest'] = {
                     'name': '.objects.xml',
                     'data': manifest,
@@ -65,7 +65,7 @@ class ManifestExporterSection(object):
 
         try:
             data = doc.toprettyxml(indent='  ', encoding='utf-8')
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError:
             # all comments are strings encoded in 'utf-8' and they will properly
             # saved in xml file, but if we explicitly give 'utf-8' encoding
             # UnicodeDecodeError will be raised when they have non-ascii chars

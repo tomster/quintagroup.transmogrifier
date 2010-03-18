@@ -4,7 +4,6 @@ from zope.interface import classProvides, implements
 from zope.annotation.interfaces import IAnnotations
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
-from collective.transmogrifier.utils import defaultMatcher
 
 from Products.GenericSetup import context
 from Products.CMFCore import utils

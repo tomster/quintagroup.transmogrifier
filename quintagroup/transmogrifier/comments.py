@@ -40,7 +40,7 @@ class CommentsExporterSection(object):
             if discussion_container is not None:
                 data = self.extractComments(discussion_container)
                 if data:
-                    files = item.setdefault(self.fileskey, {})
+                    item.setdefault(self.fileskey, {})
                     item[self.fileskey]['comments'] = {
                         'name': '.comments.xml',
                         'data': data,
@@ -87,7 +87,7 @@ class CommentsExporterSection(object):
 
         try:
             data = self.doc.toprettyxml(indent='  ', encoding='utf-8')
-        except UnicodeError, e:
+        except UnicodeError:
             # all comments are strings encoded in 'utf-8' and they will properly
             # saved in xml file, but if we explicitly give 'utf-8' encoding
             # UnicodeDecodeError will be raised when they have non-ascii chars

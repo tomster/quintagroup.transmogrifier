@@ -85,7 +85,7 @@ class FileExporterSection(object):
         # TextField overrided getBaseUnit method but didn't follow API
         try:
             base_unit = field.getBaseUnit(obj, full=True)
-        except TypeError, e:
+        except TypeError:
             base_unit = field.getBaseUnit(obj)
         fname = base_unit.getFilename() 
         ct = base_unit.getContentType()
@@ -122,7 +122,7 @@ class FileExporterSection(object):
 
         try:
             data = doc.toprettyxml(indent='  ', encoding='utf-8')
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError:
             # all comments are strings encoded in 'utf-8' and they will properly
             # saved in xml file, but if we explicitly give 'utf-8' encoding
             # UnicodeDecodeError will be raised when they have non-ascii chars
@@ -172,7 +172,7 @@ class FileImporterSection(object):
                         if fname in item[fileskey]:
                             data = item[fileskey][fname]['data']
                         elif contextkey:
-                            data = context.readDataFile("%s/%s" % (path, fname))
+                            data = self.context.readDataFile("%s/%s" % (path, fname))
                             if data is None:
                                 continue
                         if not self.condition(item, context=obj, fname=field,
@@ -182,7 +182,7 @@ class FileImporterSection(object):
                         mutator(data, filename=fname, mimetype=ct)
                 except ConflictError:
                     raise
-                except Exception, e:
+                except Exception:
                     print "Exception in fileimporter section:"
                     print '-'*60
                     traceback.print_exc()

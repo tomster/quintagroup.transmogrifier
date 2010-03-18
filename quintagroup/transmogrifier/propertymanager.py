@@ -1,3 +1,4 @@
+from zExceptions import BadRequest
 from copy import deepcopy
 from xml.dom import minidom
 
@@ -195,7 +196,7 @@ class PropertiesExporterSection(object):
                     doc.unlink()
 
                 if data:
-                    files = item.setdefault(self.fileskey, {})
+                    item.setdefault(self.fileskey, {})
                     item[self.fileskey]['propertymanager'] = {
                         'name': '.properties.xml',
                         'data': data,

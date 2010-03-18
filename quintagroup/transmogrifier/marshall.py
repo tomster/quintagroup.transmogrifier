@@ -1,5 +1,4 @@
 import traceback
-from DateTime import DateTime
 
 from zope.interface import classProvides, implements
 from zope import event
@@ -14,9 +13,6 @@ from Products.Marshall import registry
 from Products.Archetypes.interfaces import IBaseObject
 from Products.Archetypes.event import ObjectInitializedEvent
 from Products.Archetypes.event import ObjectEditedEvent
-
-# override Marshall atxml namespaces
-from quintagroup.transmogrifier import namespaces
 
 
 class MarshallerSection(object):
@@ -59,12 +55,12 @@ class MarshallerSection(object):
                     content_type, length, data = self.atxml.marshall(obj, atns_exclude=atns_exclude)
                 except ConflictError:
                     raise
-                except Exception, exception:
+                except Exception:
                     data = None
 
                 if data or data is None:
                     # None value has special meaning for IExportDataCorrector adapter for topic criterias
-                    files = item.setdefault(self.fileskey, {})
+                    item.setdefault(self.fileskey, {})
                     item[self.fileskey]['marshall'] = {
                         'name': '.marshall.xml',
                         'data': data,
@@ -136,7 +132,7 @@ class DemarshallerSection(object):
                         obj.at_post_edit_script()
                 except ConflictError:
                     raise
-                except Exception, e:
+                except Exception:
                     print 'Exception in demarshaller section:'
                     print '-'*60
                     traceback.print_exc()

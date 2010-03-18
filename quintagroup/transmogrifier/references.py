@@ -1,7 +1,6 @@
 from zope.interface import classProvides, implements
 
 from collective.transmogrifier.interfaces import ISection, ISectionBlueprint
-from collective.transmogrifier.utils import defaultMatcher
 
 from Products.CMFCore.utils import getToolByName
 from Products.Archetypes import config as atcfg

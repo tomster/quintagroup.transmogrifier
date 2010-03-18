@@ -81,7 +81,7 @@ from Products.GenericSetup.context import TarballImportContext
 TarballImportContext.listDirectory = listDirectory
 
 # patch for this bug in tarfile module - http://bugs.python.org/issue1719898
-from tarfile import TarInfo, nts, GNUTYPE_SPARSE, normpath, DIRTYPE
+from tarfile import nts, GNUTYPE_SPARSE, normpath
 def frombuf(cls, buf):
     """Construct a TarInfo object from a 512 byte string buffer.
     """

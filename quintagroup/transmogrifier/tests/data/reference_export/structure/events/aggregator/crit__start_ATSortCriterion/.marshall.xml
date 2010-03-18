@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?><metadata xmlns="http://plone.org/ns/archetypes/" xmlns:cmf="http://cmf.zope.org/namespaces/default/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="adobe:ns:meta">
+	<dc:title>
+		Events
+	</dc:title>
+	<dc:description>
+		A sort criterion
+	</dc:description>
+	<dc:creator>
+		portal_owner
+	</dc:creator>
+	<dc:language>
+		en
+	</dc:language>
+	<xmp:CreateDate>
+		2010-03-18T14:29:38Z
+	</xmp:CreateDate>
+	<xmp:ModifyDate>
+		2010-03-18T14:29:38Z
+	</xmp:ModifyDate>
+	<field name="id">
+		crit__start_ATSortCriterion
+	</field>
+	<field name="field">
+		start
+	</field>
+	<uid>
+		
+	</uid>
+	<cmf:type>
+		ATSortCriterion
+	</cmf:type>
+	<cmf:workflow_history>
+		<cmf:workflow id="simple_publication_workflow">
+			<cmf:history>
+				<cmf:var id="action" type="None" value="None"/>
+				<cmf:var id="actor" type="str" value="portal_owner"/>
+				<cmf:var id="comments" type="str" value=""/>
+				<cmf:var id="review_state" type="str" value="private"/>
+				<cmf:var id="time" type="date" value="2010-03-18T15:29:38+01:00"/>
+			</cmf:history>
+			<cmf:history>
+				<cmf:var id="action" type="str" value="publish"/>
+				<cmf:var id="actor" type="str" value="portal_owner"/>
+				<cmf:var id="comments" type="str" value=""/>
+				<cmf:var id="review_state" type="str" value="published"/>
+				<cmf:var id="time" type="date" value="2010-03-18T15:29:38+01:00"/>
+			</cmf:history>
+		</cmf:workflow>
+	</cmf:workflow_history>
+	<cmf:security>
+		<cmf:local_role role="Owner" user_id="portal_owner"/>
+	</cmf:security>
+</metadata>

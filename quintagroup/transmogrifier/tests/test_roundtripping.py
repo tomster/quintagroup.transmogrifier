@@ -22,16 +22,28 @@ class RoundtrippingTests(TransmogrifierTestCase):
     """
 
     def recursive_comparison(self, comparison): 
-        report = {}
-        report['diff_files'] = comparison.diff_files
-        report['funny_files'] = comparison.funny_files
+        report = {
+            'diff_files' : comparison.diff_files,
+            'funny_files' : comparison.funny_files
+        }
         for sd in comparison.subdirs.itervalues():
             report.update(self.recursive_comparison(sd))
         return report
 
 
     def testTripWireExport(self):
+        """ A basic sanity check. We create demo data, normalize it, export it
+            and then recursively compare its file structure with a previous 
+            snapshot of that export (which has been added to the test fixture.
+            
+            This enables us to detect changes in the marshalling. If this test
+            begins to fail, we should simply commit the new structure to the
+            fixture (after anyalyzing the differences) to make the test pass
+            again.
+        """
         self.loginAsPortalOwner()
+        
+        # create some additional content
         self.portal.news.invokeFactory('News Item', id='hold-the-press', title=u"Høld the Press!")
         self.portal.events.invokeFactory('Event',
             id='party',
@@ -39,7 +51,8 @@ class RoundtrippingTests(TransmogrifierTestCase):
             startDate='2010-01-01T15:00:00Z',
             endDate='2010-01-01T16:00:00Z')
 
-        # normalize creation and modifcation dates to enable meaningful diffs
+        # normalize uid, creation and modifcation dates to enable meaningful
+        # diffs
         for brain in self.portal.portal_catalog():
             obj = brain.getObject()
             obj.setModificationDate('2010-01-01T14:00:00Z')
@@ -49,9 +62,12 @@ class RoundtrippingTests(TransmogrifierTestCase):
         import transaction
         transaction.commit()
 
+        # monkeypatch the CMF marshaller to exclude the workflow history
+        # as that information is difficult to normalize
         from quintagroup.transmogrifier.namespaces.cmfns import CMF
         CMF.attributes = (CMF.attributes[0], CMF.attributes[2])
 
+        # perform the actual export
         setup = self.portal.portal_setup
         result = setup._doRunExportSteps(['content_quinta'])
         tempfolder = tempfile.mkdtemp()
@@ -60,11 +76,14 @@ class RoundtrippingTests(TransmogrifierTestCase):
         tgz.write(result['tarball'])
         tgz.close()
         exported = TarFile.open(tgz_filename, 'r:gz')
+
         exported_structure_path = '%s/exported/' % tempfolder
         exported.extractall(exported_structure_path)
-        reference_structure_path = '%s/reference_export/' % self.data_path
-        comparison = dircmp(reference_structure_path, exported_structure_path)
+        snapshot_structure_path = '%s/reference_export/' % self.data_path
+        comparison = dircmp(snapshot_structure_path, exported_structure_path)
 
+        # for the test we check that there are no files that differ
+        # and that all files were comparable (funny_files)
         report = self.recursive_comparison(comparison)
         self.assertEqual(report['diff_files'], [])
         self.assertEqual(report['funny_files'], [])

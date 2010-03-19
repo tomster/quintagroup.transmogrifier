@@ -15,6 +15,7 @@ class SetupTests(TransmogrifierTestCase):
             [info['id'] for info in  portal_setup.listProfileInfo()]
         )
 
+
 class RoundtrippingTests(TransmogrifierTestCase):
     """ These tests export content, re-import it and make sure
         that we get what we expect.
@@ -75,6 +76,7 @@ class RoundtrippingTests(TransmogrifierTestCase):
         report = self.recursive_comparison(comparison)
         self.assertEqual(report['diff_files'], [])
         self.assertEqual(report['funny_files'], [])
+
 
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)

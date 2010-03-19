@@ -1,5 +1,5 @@
 import tempfile
-import os
+from os.path import join
 import quintagroup
 from Products.Five.testbrowser import Browser
 from Products.PloneTestCase import ptc
@@ -14,8 +14,7 @@ class TransmogrifierTestCase(ptc.PloneTestCase):
 
     layer = testing.transmogrifier
     tempfolder = tempfile.mkdtemp()
-    data_path = os.path.join(quintagroup.transmogrifier.tests.__path__[0],
-        "data")
+    data_path = join(quintagroup.transmogrifier.tests.__path__[0], "data")
 
 
 class TransmogrifierFunctionalTestCase(ptc.FunctionalTestCase):

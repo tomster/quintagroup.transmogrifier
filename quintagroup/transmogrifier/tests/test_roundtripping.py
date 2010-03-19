@@ -104,6 +104,11 @@ class RoundtrippingTests(TransmogrifierTestCase):
         self.assertEqual(self.portal.events.party.startDate,
             self.target.events.party.startDate)
 
+        # the front page body text is text/html, right?
+        frontpage = self.target['front-page']
+        self.assertEqual(frontpage.getField('text', frontpage).getContentType(frontpage),
+            'text/html')
+
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)
 

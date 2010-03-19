@@ -35,7 +35,12 @@ class RoundtrippingTests(TransmogrifierTestCase):
     def import_site(self, filename, target=None):
         if target is None:
             target = self.target
-        from zope.site.hooks import setSite
+
+        try:
+            from zope.site.hooks import setSite
+        except ImportError:
+            from zope.app.component.hooks import setSite
+
         setSite(target)
         setup = target.portal_setup
         tarball = open(filename)
@@ -78,7 +83,8 @@ class RoundtrippingTests(TransmogrifierTestCase):
         # perform the actual export
         exported = TarFile.open(self.export_site(), 'r:gz')
         exported_structure_path = '%s/exported/' % self.tempfolder
-        exported.extractall(exported_structure_path)
+        for member in exported.getmembers():
+            exported.extract(member, path=exported_structure_path)
         snapshot_structure_path = '%s/reference_export/' % self.data_path
         comparison = dircmp(snapshot_structure_path, exported_structure_path)
 

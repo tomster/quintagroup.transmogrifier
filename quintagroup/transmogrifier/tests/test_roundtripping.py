@@ -95,12 +95,24 @@ class RoundtrippingTests(TransmogrifierTestCase):
         self.assertEqual(report['funny_files'], [])
 
     def testRoundTrip(self):
-        """ export the demo data and import it into the target site"""
+        """ export the demo data and import it into the target site,
+            paying particular attention to events and to the mimetype
+            of text fields, as these were observed bugs in TTW testing.
+        """
+
+        # make sure, that prior to import, the target size does not
+        # have the same number of events:
         self.failIf(sorted(list(self.portal.events.objectIds())) ==
             sorted(list(self.target.events.objectIds())))
+
+        # export the source site and import it into the target:
         self.import_site(self.export_site())
+
+        # now, we have the same number of events
         self.assertEqual(sorted(list(self.portal.events.objectIds())),
             sorted(list(self.target.events.objectIds())))
+
+        # the imported event has the identical startDate as its source:
         self.assertEqual(self.portal.events.party.startDate,
             self.target.events.party.startDate)
 

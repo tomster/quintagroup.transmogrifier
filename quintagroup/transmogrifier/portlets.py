@@ -250,4 +250,3 @@ class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImport
         '''
         text = super(PortletAssignmentExportImportHandler, self).extract_text(node)
         return text.strip()
-

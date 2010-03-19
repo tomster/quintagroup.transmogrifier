@@ -95,7 +95,8 @@ class RoundtrippingTests(TransmogrifierTestCase):
         self.import_site(self.export_site())
         self.assertEqual(sorted(list(self.portal.events.objectIds())),
             sorted(list(self.target.events.objectIds())))
-        
+        self.assertEqual(self.portal.events.party.startDate,
+            self.target.events.party.startDate)
 
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)

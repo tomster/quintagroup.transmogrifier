@@ -26,8 +26,8 @@ class TransmogrifierLayer(BasePTCLayer):
         self.portal.events.invokeFactory('Event',
             id='party',
             title=u"Süper Pärty",
-            startDate='2010-01-01T15:00:00Z',
-            endDate='2010-01-01T16:00:00Z')
+            startDate='2010/01/01 15:00:00',
+            endDate='2010/01/01 15:00:00')
 
 
 transmogrifier = TransmogrifierLayer(bases=[ptc_layer])

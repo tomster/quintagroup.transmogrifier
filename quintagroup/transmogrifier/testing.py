@@ -3,10 +3,13 @@ from Testing.ZopeTestCase import installPackage
 from Products.Five import zcml
 from Products.Five import fiveconfigure
 from collective.testcaselayer.ptc import BasePTCLayer, ptc_layer
+from Products.PloneTestCase import ptc
 
 
 class TransmogrifierLayer(BasePTCLayer):
     """ layer for integration tests """
+
+    ptc.setupPloneSite(id="target")
 
     def afterSetUp(self):
         fiveconfigure.debug_mode = True

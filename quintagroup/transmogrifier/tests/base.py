@@ -16,6 +16,10 @@ class TransmogrifierTestCase(ptc.PloneTestCase):
     tempfolder = tempfile.mkdtemp()
     data_path = join(quintagroup.transmogrifier.tests.__path__[0], "data")
 
+    @property
+    def target(self):
+        """return the 2nd plone site, the target for our import tests."""
+        return self.app.target
 
 class TransmogrifierFunctionalTestCase(ptc.FunctionalTestCase):
     """ base class for functional tests """

@@ -33,7 +33,25 @@ class RoundtrippingTests(TransmogrifierTestCase):
     def testTripWireExport(self):
         self.loginAsPortalOwner()
         self.portal.news.invokeFactory('News Item', id='hold-the-press', title=u"Høld the Press!")
-        self.portal.events.invokeFactory('Event', id='party', title=u"Süper Pärty")
+        self.portal.events.invokeFactory('Event',
+            id='party',
+            title=u"Süper Pärty",
+            startDate='2010-01-01T15:00:00Z',
+            endDate='2010-01-01T16:00:00Z')
+
+        # normalize creation and modifcation dates to enable meaningful diffs
+        for brain in self.portal.portal_catalog():
+            obj = brain.getObject()
+            obj.setModificationDate('2010-01-01T14:00:00Z')
+            obj.setCreationDate('2010-01-01T14:00:00Z')
+            obj._at_uid = brain.getPath()
+        
+        import transaction
+        transaction.commit()
+
+        from quintagroup.transmogrifier.namespaces.cmfns import CMF
+        CMF.attributes = (CMF.attributes[0], CMF.attributes[2])
+
         setup = self.portal.portal_setup
         result = setup._doRunExportSteps(['content_quinta'])
         tempfolder = tempfile.mkdtemp()
@@ -45,9 +63,7 @@ class RoundtrippingTests(TransmogrifierTestCase):
         exported_structure_path = '%s/exported/' % tempfolder
         exported.extractall(exported_structure_path)
         reference_structure_path = '%s/reference_export/' % self.data_path
-
-        comparison = dircmp(reference_structure_path,
-            exported_structure_path)
+        comparison = dircmp(reference_structure_path, exported_structure_path)
 
         report = self.recursive_comparison(comparison)
         self.assertEqual(report['diff_files'], [])

@@ -17,6 +17,12 @@
 	<field mimetype="text/plain" name="id">
 		party
 	</field>
+	<field mimetype="text/plain" name="startDate">
+		2010/01/01 15:00:00 GMT+1
+	</field>
+	<field mimetype="text/plain" name="endDate">
+		2010/01/01 15:00:00 GMT+1
+	</field>
 	<uid>
 		/plone/events/party
 	</uid>

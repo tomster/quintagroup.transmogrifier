@@ -40,28 +40,16 @@ class RoundtrippingTests(TransmogrifierTestCase):
             begins to fail, we should simply commit the new structure to the
             fixture (after anyalyzing the differences) to make the test pass
             again.
-        """
-        self.loginAsPortalOwner()
-        
-        # create some additional content
-        self.portal.news.invokeFactory('News Item', id='hold-the-press', title=u"Høld the Press!")
-        self.portal.events.invokeFactory('Event',
-            id='party',
-            title=u"Süper Pärty",
-            startDate='2010-01-01T15:00:00Z',
-            endDate='2010-01-01T16:00:00Z')
-
+        """        
         # normalize uid, creation and modifcation dates to enable meaningful
         # diffs
+        self.loginAsPortalOwner()
         for brain in self.portal.portal_catalog():
             obj = brain.getObject()
             obj.setModificationDate('2010-01-01T14:00:00Z')
             obj.setCreationDate('2010-01-01T14:00:00Z')
             obj._at_uid = brain.getPath()
         
-        import transaction
-        transaction.commit()
-
         # monkeypatch the CMF marshaller to exclude the workflow history
         # as that information is difficult to normalize
         from quintagroup.transmogrifier.namespaces.cmfns import CMF
@@ -87,7 +75,6 @@ class RoundtrippingTests(TransmogrifierTestCase):
         report = self.recursive_comparison(comparison)
         self.assertEqual(report['diff_files'], [])
         self.assertEqual(report['funny_files'], [])
-
 
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)

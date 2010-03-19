@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import tempfile
 from filecmp import dircmp
 from tarfile import TarFile
 from unittest import defaultTestLoader
@@ -20,6 +19,15 @@ class RoundtrippingTests(TransmogrifierTestCase):
     """ These tests export content, re-import it and make sure
         that we get what we expect.
     """
+
+    def export_site(self):
+        setup = self.portal.portal_setup
+        result = setup._doRunExportSteps(['content_quinta'])
+        tgz_filename = "%s/%s" % (self.tempfolder, result['filename'])
+        tgz = open(tgz_filename, 'w')
+        tgz.write(result['tarball'])
+        tgz.close()
+        return tgz_filename
 
     def recursive_comparison(self, comparison): 
         report = {
@@ -56,16 +64,8 @@ class RoundtrippingTests(TransmogrifierTestCase):
         CMF.attributes = (CMF.attributes[0], CMF.attributes[2])
 
         # perform the actual export
-        setup = self.portal.portal_setup
-        result = setup._doRunExportSteps(['content_quinta'])
-        tempfolder = tempfile.mkdtemp()
-        tgz_filename = "%s/%s" % (tempfolder, result['filename'])
-        tgz = open(tgz_filename, 'w')
-        tgz.write(result['tarball'])
-        tgz.close()
-        exported = TarFile.open(tgz_filename, 'r:gz')
-
-        exported_structure_path = '%s/exported/' % tempfolder
+        exported = TarFile.open(self.export_site(), 'r:gz')
+        exported_structure_path = '%s/exported/' % self.tempfolder
         exported.extractall(exported_structure_path)
         snapshot_structure_path = '%s/reference_export/' % self.data_path
         comparison = dircmp(snapshot_structure_path, exported_structure_path)

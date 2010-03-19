@@ -1,3 +1,4 @@
+import tempfile
 import os
 import quintagroup
 from Products.Five.testbrowser import Browser
@@ -12,7 +13,7 @@ class TransmogrifierTestCase(ptc.PloneTestCase):
     """ base class for integration tests """
 
     layer = testing.transmogrifier
-
+    tempfolder = tempfile.mkdtemp()
     data_path = os.path.join(quintagroup.transmogrifier.tests.__path__[0],
         "data")
 

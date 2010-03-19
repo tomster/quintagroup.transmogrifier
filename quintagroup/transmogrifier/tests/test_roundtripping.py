@@ -88,6 +88,14 @@ class RoundtrippingTests(TransmogrifierTestCase):
         self.assertEqual(report['diff_files'], [])
         self.assertEqual(report['funny_files'], [])
 
+    def testRoundTrip(self):
+        """ export the demo data and import it into the target site"""
+        self.failIf(sorted(list(self.portal.events.objectIds())) ==
+            sorted(list(self.target.events.objectIds())))
+        self.import_site(self.export_site())
+        self.assertEqual(sorted(list(self.portal.events.objectIds())),
+            sorted(list(self.target.events.objectIds())))
+        
 
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)

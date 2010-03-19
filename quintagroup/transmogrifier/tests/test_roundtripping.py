@@ -30,6 +30,15 @@ class RoundtrippingTests(TransmogrifierTestCase):
         tgz.close()
         return tgz_filename
 
+    def import_site(self, filename, target=None):
+        if target is None:
+            target = self.target
+        from zope.site.hooks import setSite
+        setSite(target)
+        setup = target.portal_setup
+        tarball = open(filename)
+        setup.runAllImportStepsFromProfile(None, True, archive=tarball.read())
+
     def recursive_comparison(self, comparison): 
         report = {
             'diff_files' : comparison.diff_files,

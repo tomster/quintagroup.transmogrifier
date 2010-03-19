@@ -105,6 +105,13 @@ class RoundtrippingTests(TransmogrifierTestCase):
         self.failIf(sorted(list(self.portal.events.objectIds())) ==
             sorted(list(self.target.events.objectIds())))
 
+        self.assertEqual(self.target['front-page'].getRelatedItems(), [])
+        self.portal['front-page'].setRelatedItems([self.portal.events.party,
+            self.portal.news['hold-the-press']])
+        source_related = sorted(['/'.join(obj.getPhysicalPath()) for obj in self.portal['front-page'].getRelatedItems()])
+        self.assertEqual(source_related,
+            ['/plone/events/party', '/plone/news/hold-the-press'])
+
         # export the source site and import it into the target:
         self.import_site(self.export_site())
 
@@ -120,6 +127,11 @@ class RoundtrippingTests(TransmogrifierTestCase):
         frontpage = self.target['front-page']
         self.assertEqual(frontpage.getField('text', frontpage).getContentType(frontpage),
             'text/html')
+
+        # revisit the related items
+        target_related = sorted(['/'.join(obj.getPhysicalPath()) for obj in self.target['front-page'].getRelatedItems()])
+        self.assertEqual(target_related,
+            ['/target/events/party', '/target/news/hold-the-press'])
 
 def test_suite():
     return defaultTestLoader.loadTestsFromName(__name__)

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><metadata xmlns="http://plone.org/ns/archetypes/" xmlns:cmf="http://cmf.zope.org/namespaces/default/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="adobe:ns:meta">
 	<dc:title>
-		SÃ¼per PÃ¤rty
+		Süper Pärty
 	</dc:title>
 	<dc:creator>
 		portal_owner
@@ -9,37 +9,20 @@
 		en
 	</dc:language>
 	<xmp:CreateDate>
-		2010-03-18T14:42:57Z
+		2010-01-01T14:00:00Z
 	</xmp:CreateDate>
 	<xmp:ModifyDate>
-		2010-03-18T14:42:57Z
+		2010-01-01T14:00:00Z
 	</xmp:ModifyDate>
-	<field name="id">
+	<field mimetype="text/plain" name="id">
 		party
 	</field>
-	<field name="startDate">
-		2010/03/18 15:42:57.426964 GMT+1
-	</field>
-	<field name="endDate">
-		2010/03/18 15:42:57.427146 GMT+1
-	</field>
 	<uid>
-		54228b1fa32aeca2b1db5c130bb714f3
+		/plone/events/party
 	</uid>
 	<cmf:type>
 		Event
 	</cmf:type>
-	<cmf:workflow_history>
-		<cmf:workflow id="simple_publication_workflow">
-			<cmf:history>
-				<cmf:var id="action" type="None" value="None"/>
-				<cmf:var id="actor" type="str" value="portal_owner"/>
-				<cmf:var id="comments" type="str" value=""/>
-				<cmf:var id="review_state" type="str" value="private"/>
-				<cmf:var id="time" type="date" value="2010-03-18T15:42:57+01:00"/>
-			</cmf:history>
-		</cmf:workflow>
-	</cmf:workflow_history>
 	<cmf:security>
 		<cmf:local_role role="Owner" user_id="portal_owner"/>
 	</cmf:security>

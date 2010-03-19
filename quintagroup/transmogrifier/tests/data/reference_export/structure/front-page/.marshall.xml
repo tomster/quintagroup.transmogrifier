@@ -12,15 +12,15 @@
 		en
 	</dc:language>
 	<xmp:CreateDate>
-		2010-03-18T14:29:37Z
+		2010-01-01T14:00:00Z
 	</xmp:CreateDate>
 	<xmp:ModifyDate>
-		2010-03-18T14:29:38Z
+		2010-01-01T14:00:00Z
 	</xmp:ModifyDate>
-	<field name="id">
+	<field mimetype="text/plain" name="id">
 		front-page
 	</field>
-	<field name="text">
+	<field mimetype="text/html" name="text">
 		&lt;p class=&quot;discreet&quot;&gt;
 If you're seeing this instead of the web site you were expecting, the owner of
 this web site has just installed Plone. Do not contact the Plone Team or the
@@ -139,33 +139,15 @@ individuals and hundreds of companies. The Plone Foundation:
 
 &lt;p&gt;&amp;mdash;The Plone Team&lt;/p&gt;
 	</field>
-	<field name="presentation">
+	<field mimetype="text/plain" name="presentation">
 		True
 	</field>
 	<uid>
-		8e779af59dc346f2b2a45befc7182225
+		/plone/front-page
 	</uid>
 	<cmf:type>
 		Document
 	</cmf:type>
-	<cmf:workflow_history>
-		<cmf:workflow id="simple_publication_workflow">
-			<cmf:history>
-				<cmf:var id="action" type="None" value="None"/>
-				<cmf:var id="actor" type="str" value="portal_owner"/>
-				<cmf:var id="comments" type="str" value=""/>
-				<cmf:var id="review_state" type="str" value="private"/>
-				<cmf:var id="time" type="date" value="2010-03-18T15:29:37+01:00"/>
-			</cmf:history>
-			<cmf:history>
-				<cmf:var id="action" type="str" value="publish"/>
-				<cmf:var id="actor" type="str" value="portal_owner"/>
-				<cmf:var id="comments" type="str" value=""/>
-				<cmf:var id="review_state" type="str" value="published"/>
-				<cmf:var id="time" type="date" value="2010-03-18T15:29:38+01:00"/>
-			</cmf:history>
-		</cmf:workflow>
-	</cmf:workflow_history>
 	<cmf:security>
 		<cmf:local_role role="Owner" user_id="portal_owner"/>
 	</cmf:security>

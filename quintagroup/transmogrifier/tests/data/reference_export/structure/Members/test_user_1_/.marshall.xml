@@ -6,34 +6,23 @@
 		en
 	</dc:language>
 	<xmp:CreateDate>
-		2010-03-18T14:29:39Z
+		2010-01-01T14:00:00Z
 	</xmp:CreateDate>
 	<xmp:ModifyDate>
-		2010-03-18T14:29:39Z
+		2010-01-01T14:00:00Z
 	</xmp:ModifyDate>
-	<field name="id">
+	<field mimetype="text/plain" name="id">
 		test_user_1_
 	</field>
-	<field name="constrainTypesMode">
+	<field mimetype="text/plain" name="constrainTypesMode">
 		-1
 	</field>
 	<uid>
-		e253c17127457662c4ccd4086e88a7e5
+		/plone/Members/test_user_1_
 	</uid>
 	<cmf:type>
 		Folder
 	</cmf:type>
-	<cmf:workflow_history>
-		<cmf:workflow id="simple_publication_workflow">
-			<cmf:history>
-				<cmf:var id="action" type="None" value="None"/>
-				<cmf:var id="actor" type="str" value="portal_owner"/>
-				<cmf:var id="comments" type="str" value=""/>
-				<cmf:var id="review_state" type="str" value="private"/>
-				<cmf:var id="time" type="date" value="2010-03-18T15:29:39+01:00"/>
-			</cmf:history>
-		</cmf:workflow>
-	</cmf:workflow_history>
 	<cmf:security>
 		<cmf:local_role role="Owner" user_id="test_user_1_"/>
 	</cmf:security>

@@ -12,18 +12,18 @@
 		en
 	</dc:language>
 	<xmp:CreateDate>
-		2010-03-18T14:29:38Z
+		2010-01-01T14:00:00Z
 	</xmp:CreateDate>
 	<xmp:ModifyDate>
-		2010-03-18T14:29:38Z
+		2010-01-01T14:00:00Z
 	</xmp:ModifyDate>
-	<field name="id">
+	<field mimetype="text/plain" name="id">
 		crit__review_state_ATSimpleStringCriterion
 	</field>
-	<field name="field">
+	<field mimetype="text/plain" name="field">
 		review_state
 	</field>
-	<field name="value">
+	<field mimetype="text/plain" name="value">
 		published
 	</field>
 	<uid>
@@ -32,24 +32,6 @@
 	<cmf:type>
 		ATSimpleStringCriterion
 	</cmf:type>
-	<cmf:workflow_history>
-		<cmf:workflow id="simple_publication_workflow">
-			<cmf:history>
-				<cmf:var id="action" type="None" value="None"/>
-				<cmf:var id="actor" type="str" value="portal_owner"/>
-				<cmf:var id="comments" type="str" value=""/>
-				<cmf:var id="review_state" type="str" value="private"/>
-				<cmf:var id="time" type="date" value="2010-03-18T15:29:38+01:00"/>
-			</cmf:history>
-			<cmf:history>
-				<cmf:var id="action" type="str" value="publish"/>
-				<cmf:var id="actor" type="str" value="portal_owner"/>
-				<cmf:var id="comments" type="str" value=""/>
-				<cmf:var id="review_state" type="str" value="published"/>
-				<cmf:var id="time" type="date" value="2010-03-18T15:29:38+01:00"/>
-			</cmf:history>
-		</cmf:workflow>
-	</cmf:workflow_history>
 	<cmf:security>
 		<cmf:local_role role="Owner" user_id="portal_owner"/>
 	</cmf:security>

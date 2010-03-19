@@ -21,8 +21,10 @@ class RoundtrippingTests(TransmogrifierTestCase):
         that we get what we expect.
     """
 
-    def export_site(self):
-        setup = self.portal.portal_setup
+    def export_site(self, source=None):
+        if source is None:
+            source = self.portal
+        setup = source.portal_setup
         result = setup._doRunExportSteps(['content_quinta'])
         tgz_filename = "%s/%s" % (self.tempfolder, result['filename'])
         tgz = open(tgz_filename, 'w')

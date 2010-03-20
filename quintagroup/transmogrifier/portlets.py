@@ -243,7 +243,10 @@ class PortletAssignmentExportImportHandler(PropertyPortletAssignmentExportImport
     adapts(IPortletAssignment)
 
     def extract_text(self, node):
+        ''' call the original extract_text and strip the text to remove
+        newlines and space character. This is necessary to import the
+        pretty xml the export blueprint produces without failing to pass
+        zope.schema validation
+        '''
         text = super(PortletAssignmentExportImportHandler, self).extract_text(node)
-        # strip text to remove newlines and space character from the beginning 
-        # and the end
         return text.strip()

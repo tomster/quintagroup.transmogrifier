@@ -30,6 +30,8 @@ class ReferenceExporter(object):
     def exportReferences(self, xml):
         """ Marshall 1.0.0 doesn't export references, do it manually.
         """
+        if xml is None:
+            return u"";
         doc = minidom.parseString(xml)
         root = doc.documentElement
         for fname in self.context.Schema().keys():

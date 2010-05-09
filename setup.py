@@ -28,6 +28,9 @@ setup(name='quintagroup.transmogrifier',
           'plone.app.transmogrifier'
           # -*- Extra requirements: -*-
       ],
+      extras_require = {
+        "tests": ["collective.testcaselayer"],
+      },
       entry_points="""
       # -*- Entry points: -*-
       """,
